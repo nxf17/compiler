@@ -1,5 +1,8 @@
 Terminals unused in grammar
 
+   FOR
+   BREAK
+   CONTINUE
    LOWER_THAN_ELSE
 
 
@@ -9,7 +12,7 @@ Terminals unused in grammar
 
     1 Program: ExtDefList
 
-    2 ExtDefList: /* 空 */
+    2 ExtDefList: %empty
     3           | ExtDef ExtDefList
 
     4 ExtDef: Specifier ExtDecList SEMI
@@ -25,7 +28,7 @@ Terminals unused in grammar
    11 StructSpecifier: STRUCT OptTag LC DefList RC
    12                | STRUCT Tag
 
-   13 OptTag: /* 空 */
+   13 OptTag: %empty
    14       | ID
 
    15 Tag: ID
@@ -44,7 +47,7 @@ Terminals unused in grammar
    23 CompSt: LC DefList StmtList RC
 
    24 StmtList: Stmt StmtList
-   25         | /* 空 */
+   25         | %empty
 
    26 Stmt: Exp SEMI
    27     | CompSt
@@ -54,7 +57,7 @@ Terminals unused in grammar
    31     | WHILE LP Exp RP Stmt
 
    32 DefList: Def DefList
-   33        | /* 空 */
+   33        | %empty
 
    34 Def: Specifier DecList SEMI
 
@@ -118,59 +121,62 @@ RETURN (281) 28
 IF (282) 29 30
 ELSE (283) 30
 WHILE (284) 31
-LOWER_THAN_ELSE (285)
+FOR (285)
+BREAK (286)
+CONTINUE (287)
+LOWER_THAN_ELSE (288)
 
 
 Nonterminals, with rules where they appear
 
-$accept (31)
+$accept (34)
     左： 0
-Program (32)
+Program (35)
     左： 1, 右： 0
-ExtDefList (33)
+ExtDefList (36)
     左： 2 3, 右： 1 3
-ExtDef (34)
+ExtDef (37)
     左： 4 5 6, 右： 3
-ExtDecList (35)
+ExtDecList (38)
     左： 7 8, 右： 4 8
-Specifier (36)
+Specifier (39)
     左： 9 10, 右： 4 5 6 22 34
-StructSpecifier (37)
+StructSpecifier (40)
     左： 11 12, 右： 10
-OptTag (38)
+OptTag (41)
     左： 13 14, 右： 11
-Tag (39)
+Tag (42)
     左： 15, 右： 12
-VarDec (40)
+VarDec (43)
     左： 16 17, 右： 7 8 17 22 37 38
-FunDec (41)
+FunDec (44)
     左： 18 19, 右： 6
-VarList (42)
+VarList (45)
     左： 20 21, 右： 18 20
-ParamDec (43)
+ParamDec (46)
     左： 22, 右： 20 21
-CompSt (44)
+CompSt (47)
     左： 23, 右： 6 27
-StmtList (45)
+StmtList (48)
     左： 24 25, 右： 23 24
-Stmt (46)
+Stmt (49)
     左： 26 27 28 29 30 31, 右： 24 29 30 31
-DefList (47)
+DefList (50)
     左： 32 33, 右： 11 23 32
-Def (48)
+Def (51)
     左： 34, 右： 32
-DecList (49)
+DecList (52)
     左： 35 36, 右： 34 36
-Dec (50)
+Dec (53)
     左： 37 38, 右： 35 36
-Exp (51)
+Exp (54)
     左： 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56, 右：
     26 28 29 30 31 38 39 40 41 42 43 44 45 46 47 48 49 52 53 57 58
-Args (52)
+Args (55)
     左： 57 58, 右： 50 57
 
 
-状态 0
+State 0
 
     0 $accept: . Program $end
 
@@ -179,21 +185,21 @@ Args (52)
 
     $default  reduce using rule 2 (ExtDefList)
 
-    Program          转到状态3
-    ExtDefList       转到状态4
-    ExtDef           转到状态5
-    Specifier        转到状态6
-    StructSpecifier  转到状态7
+    Program          转到状态 3
+    ExtDefList       转到状态 4
+    ExtDef           转到状态 5
+    Specifier        转到状态 6
+    StructSpecifier  转到状态 7
 
 
-状态 1
+State 1
 
     9 Specifier: TYPE .
 
     $default  reduce using rule 9 (Specifier)
 
 
-状态 2
+State 2
 
    11 StructSpecifier: STRUCT . OptTag LC DefList RC
    12                | STRUCT . Tag
@@ -202,25 +208,25 @@ Args (52)
 
     $default  reduce using rule 13 (OptTag)
 
-    OptTag  转到状态9
-    Tag     转到状态10
+    OptTag  转到状态 9
+    Tag     转到状态 10
 
 
-状态 3
+State 3
 
     0 $accept: Program . $end
 
     $end  shift, and go to state 11
 
 
-状态 4
+State 4
 
     1 Program: ExtDefList .
 
     $default  reduce using rule 1 (Program)
 
 
-状态 5
+State 5
 
     3 ExtDefList: ExtDef . ExtDefList
 
@@ -229,13 +235,13 @@ Args (52)
 
     $default  reduce using rule 2 (ExtDefList)
 
-    ExtDefList       转到状态12
-    ExtDef           转到状态5
-    Specifier        转到状态6
-    StructSpecifier  转到状态7
+    ExtDefList       转到状态 12
+    ExtDef           转到状态 5
+    Specifier        转到状态 6
+    StructSpecifier  转到状态 7
 
 
-状态 6
+State 6
 
     4 ExtDef: Specifier . ExtDecList SEMI
     5       | Specifier . SEMI
@@ -244,19 +250,19 @@ Args (52)
     ID    shift, and go to state 13
     SEMI  shift, and go to state 14
 
-    ExtDecList  转到状态15
-    VarDec      转到状态16
-    FunDec      转到状态17
+    ExtDecList  转到状态 15
+    VarDec      转到状态 16
+    FunDec      转到状态 17
 
 
-状态 7
+State 7
 
    10 Specifier: StructSpecifier .
 
     $default  reduce using rule 10 (Specifier)
 
 
-状态 8
+State 8
 
    14 OptTag: ID .
    15 Tag: ID .
@@ -265,35 +271,35 @@ Args (52)
     $default  reduce using rule 15 (Tag)
 
 
-状态 9
+State 9
 
    11 StructSpecifier: STRUCT OptTag . LC DefList RC
 
     LC  shift, and go to state 18
 
 
-状态 10
+State 10
 
    12 StructSpecifier: STRUCT Tag .
 
     $default  reduce using rule 12 (StructSpecifier)
 
 
-状态 11
+State 11
 
     0 $accept: Program $end .
 
     $default  接受
 
 
-状态 12
+State 12
 
     3 ExtDefList: ExtDef ExtDefList .
 
     $default  reduce using rule 3 (ExtDefList)
 
 
-状态 13
+State 13
 
    16 VarDec: ID .
    18 FunDec: ID . LP VarList RP
@@ -304,21 +310,21 @@ Args (52)
     $default  reduce using rule 16 (VarDec)
 
 
-状态 14
+State 14
 
     5 ExtDef: Specifier SEMI .
 
     $default  reduce using rule 5 (ExtDef)
 
 
-状态 15
+State 15
 
     4 ExtDef: Specifier ExtDecList . SEMI
 
     SEMI  shift, and go to state 20
 
 
-状态 16
+State 16
 
     7 ExtDecList: VarDec .
     8           | VarDec . COMMA ExtDecList
@@ -330,16 +336,16 @@ Args (52)
     $default  reduce using rule 7 (ExtDecList)
 
 
-状态 17
+State 17
 
     6 ExtDef: Specifier FunDec . CompSt
 
     LC  shift, and go to state 23
 
-    CompSt  转到状态24
+    CompSt  转到状态 24
 
 
-状态 18
+State 18
 
    11 StructSpecifier: STRUCT OptTag LC . DefList RC
 
@@ -348,13 +354,13 @@ Args (52)
 
     $default  reduce using rule 33 (DefList)
 
-    Specifier        转到状态25
-    StructSpecifier  转到状态7
-    DefList          转到状态26
-    Def              转到状态27
+    Specifier        转到状态 25
+    StructSpecifier  转到状态 7
+    DefList          转到状态 26
+    Def              转到状态 27
 
 
-状态 19
+State 19
 
    18 FunDec: ID LP . VarList RP
    19       | ID LP . RP
@@ -363,37 +369,37 @@ Args (52)
     RP      shift, and go to state 28
     STRUCT  shift, and go to state 2
 
-    Specifier        转到状态29
-    StructSpecifier  转到状态7
-    VarList          转到状态30
-    ParamDec         转到状态31
+    Specifier        转到状态 29
+    StructSpecifier  转到状态 7
+    VarList          转到状态 30
+    ParamDec         转到状态 31
 
 
-状态 20
+State 20
 
     4 ExtDef: Specifier ExtDecList SEMI .
 
     $default  reduce using rule 4 (ExtDef)
 
 
-状态 21
+State 21
 
     8 ExtDecList: VarDec COMMA . ExtDecList
 
     ID  shift, and go to state 32
 
-    ExtDecList  转到状态33
-    VarDec      转到状态16
+    ExtDecList  转到状态 33
+    VarDec      转到状态 16
 
 
-状态 22
+State 22
 
    17 VarDec: VarDec LB . INT RB
 
     INT  shift, and go to state 34
 
 
-状态 23
+State 23
 
    23 CompSt: LC . DefList StmtList RC
 
@@ -402,38 +408,38 @@ Args (52)
 
     $default  reduce using rule 33 (DefList)
 
-    Specifier        转到状态25
-    StructSpecifier  转到状态7
-    DefList          转到状态35
-    Def              转到状态27
+    Specifier        转到状态 25
+    StructSpecifier  转到状态 7
+    DefList          转到状态 35
+    Def              转到状态 27
 
 
-状态 24
+State 24
 
     6 ExtDef: Specifier FunDec CompSt .
 
     $default  reduce using rule 6 (ExtDef)
 
 
-状态 25
+State 25
 
    34 Def: Specifier . DecList SEMI
 
     ID  shift, and go to state 32
 
-    VarDec   转到状态36
-    DecList  转到状态37
-    Dec      转到状态38
+    VarDec   转到状态 36
+    DecList  转到状态 37
+    Dec      转到状态 38
 
 
-状态 26
+State 26
 
    11 StructSpecifier: STRUCT OptTag LC DefList . RC
 
     RC  shift, and go to state 39
 
 
-状态 27
+State 27
 
    32 DefList: Def . DefList
 
@@ -442,36 +448,36 @@ Args (52)
 
     $default  reduce using rule 33 (DefList)
 
-    Specifier        转到状态25
-    StructSpecifier  转到状态7
-    DefList          转到状态40
-    Def              转到状态27
+    Specifier        转到状态 25
+    StructSpecifier  转到状态 7
+    DefList          转到状态 40
+    Def              转到状态 27
 
 
-状态 28
+State 28
 
    19 FunDec: ID LP RP .
 
     $default  reduce using rule 19 (FunDec)
 
 
-状态 29
+State 29
 
    22 ParamDec: Specifier . VarDec
 
     ID  shift, and go to state 32
 
-    VarDec  转到状态41
+    VarDec  转到状态 41
 
 
-状态 30
+State 30
 
    18 FunDec: ID LP VarList . RP
 
     RP  shift, and go to state 42
 
 
-状态 31
+State 31
 
    20 VarList: ParamDec . COMMA VarList
    21        | ParamDec .
@@ -481,28 +487,28 @@ Args (52)
     $default  reduce using rule 21 (VarList)
 
 
-状态 32
+State 32
 
    16 VarDec: ID .
 
     $default  reduce using rule 16 (VarDec)
 
 
-状态 33
+State 33
 
     8 ExtDecList: VarDec COMMA ExtDecList .
 
     $default  reduce using rule 8 (ExtDecList)
 
 
-状态 34
+State 34
 
    17 VarDec: VarDec LB INT . RB
 
     RB  shift, and go to state 44
 
 
-状态 35
+State 35
 
    23 CompSt: LC DefList . StmtList RC
 
@@ -519,13 +525,13 @@ Args (52)
 
     $default  reduce using rule 25 (StmtList)
 
-    CompSt    转到状态54
-    StmtList  转到状态55
-    Stmt      转到状态56
-    Exp       转到状态57
+    CompSt    转到状态 54
+    StmtList  转到状态 55
+    Stmt      转到状态 56
+    Exp       转到状态 57
 
 
-状态 36
+State 36
 
    17 VarDec: VarDec . LB INT RB
    37 Dec: VarDec .
@@ -537,14 +543,14 @@ Args (52)
     $default  reduce using rule 37 (Dec)
 
 
-状态 37
+State 37
 
    34 Def: Specifier DecList . SEMI
 
     SEMI  shift, and go to state 59
 
 
-状态 38
+State 38
 
    35 DecList: Dec .
    36        | Dec . COMMA DecList
@@ -554,21 +560,21 @@ Args (52)
     $default  reduce using rule 35 (DecList)
 
 
-状态 39
+State 39
 
    11 StructSpecifier: STRUCT OptTag LC DefList RC .
 
     $default  reduce using rule 11 (StructSpecifier)
 
 
-状态 40
+State 40
 
    32 DefList: Def DefList .
 
     $default  reduce using rule 32 (DefList)
 
 
-状态 41
+State 41
 
    17 VarDec: VarDec . LB INT RB
    22 ParamDec: Specifier VarDec .
@@ -578,48 +584,48 @@ Args (52)
     $default  reduce using rule 22 (ParamDec)
 
 
-状态 42
+State 42
 
    18 FunDec: ID LP VarList RP .
 
     $default  reduce using rule 18 (FunDec)
 
 
-状态 43
+State 43
 
    20 VarList: ParamDec COMMA . VarList
 
     TYPE    shift, and go to state 1
     STRUCT  shift, and go to state 2
 
-    Specifier        转到状态29
-    StructSpecifier  转到状态7
-    VarList          转到状态61
-    ParamDec         转到状态31
+    Specifier        转到状态 29
+    StructSpecifier  转到状态 7
+    VarList          转到状态 61
+    ParamDec         转到状态 31
 
 
-状态 44
+State 44
 
    17 VarDec: VarDec LB INT RB .
 
     $default  reduce using rule 17 (VarDec)
 
 
-状态 45
+State 45
 
    55 Exp: INT .
 
     $default  reduce using rule 55 (Exp)
 
 
-状态 46
+State 46
 
    56 Exp: FLOAT .
 
     $default  reduce using rule 56 (Exp)
 
 
-状态 47
+State 47
 
    50 Exp: ID . LP Args RP
    51    | ID . LP RP
@@ -630,7 +636,7 @@ Args (52)
     $default  reduce using rule 54 (Exp)
 
 
-状态 48
+State 48
 
    48 Exp: MINUS . Exp
 
@@ -641,10 +647,10 @@ Args (52)
     NOT    shift, and go to state 49
     LP     shift, and go to state 50
 
-    Exp  转到状态63
+    Exp  转到状态 63
 
 
-状态 49
+State 49
 
    49 Exp: NOT . Exp
 
@@ -655,10 +661,10 @@ Args (52)
     NOT    shift, and go to state 49
     LP     shift, and go to state 50
 
-    Exp  转到状态64
+    Exp  转到状态 64
 
 
-状态 50
+State 50
 
    47 Exp: LP . Exp RP
 
@@ -669,10 +675,10 @@ Args (52)
     NOT    shift, and go to state 49
     LP     shift, and go to state 50
 
-    Exp  转到状态65
+    Exp  转到状态 65
 
 
-状态 51
+State 51
 
    28 Stmt: RETURN . Exp SEMI
 
@@ -683,10 +689,10 @@ Args (52)
     NOT    shift, and go to state 49
     LP     shift, and go to state 50
 
-    Exp  转到状态66
+    Exp  转到状态 66
 
 
-状态 52
+State 52
 
    29 Stmt: IF . LP Exp RP Stmt
    30     | IF . LP Exp RP Stmt ELSE Stmt
@@ -694,28 +700,28 @@ Args (52)
     LP  shift, and go to state 67
 
 
-状态 53
+State 53
 
    31 Stmt: WHILE . LP Exp RP Stmt
 
     LP  shift, and go to state 68
 
 
-状态 54
+State 54
 
    27 Stmt: CompSt .
 
     $default  reduce using rule 27 (Stmt)
 
 
-状态 55
+State 55
 
    23 CompSt: LC DefList StmtList . RC
 
     RC  shift, and go to state 69
 
 
-状态 56
+State 56
 
    24 StmtList: Stmt . StmtList
 
@@ -732,13 +738,13 @@ Args (52)
 
     $default  reduce using rule 25 (StmtList)
 
-    CompSt    转到状态54
-    StmtList  转到状态70
-    Stmt      转到状态56
-    Exp       转到状态57
+    CompSt    转到状态 54
+    StmtList  转到状态 70
+    Stmt      转到状态 56
+    Exp       转到状态 57
 
 
-状态 57
+State 57
 
    26 Stmt: Exp . SEMI
    39 Exp: Exp . ASSIGNOP Exp
@@ -765,7 +771,7 @@ Args (52)
     LB        shift, and go to state 81
 
 
-状态 58
+State 58
 
    38 Dec: VarDec ASSIGNOP . Exp
 
@@ -776,35 +782,35 @@ Args (52)
     NOT    shift, and go to state 49
     LP     shift, and go to state 50
 
-    Exp  转到状态82
+    Exp  转到状态 82
 
 
-状态 59
+State 59
 
    34 Def: Specifier DecList SEMI .
 
     $default  reduce using rule 34 (Def)
 
 
-状态 60
+State 60
 
    36 DecList: Dec COMMA . DecList
 
     ID  shift, and go to state 32
 
-    VarDec   转到状态36
-    DecList  转到状态83
-    Dec      转到状态38
+    VarDec   转到状态 36
+    DecList  转到状态 83
+    Dec      转到状态 38
 
 
-状态 61
+State 61
 
    20 VarList: ParamDec COMMA VarList .
 
     $default  reduce using rule 20 (VarList)
 
 
-状态 62
+State 62
 
    50 Exp: ID LP . Args RP
    51    | ID LP . RP
@@ -817,11 +823,11 @@ Args (52)
     LP     shift, and go to state 50
     RP     shift, and go to state 84
 
-    Exp   转到状态85
-    Args  转到状态86
+    Exp   转到状态 85
+    Args  转到状态 86
 
 
-状态 63
+State 63
 
    39 Exp: Exp . ASSIGNOP Exp
    40    | Exp . AND Exp
@@ -843,7 +849,7 @@ Args (52)
     $default  reduce using rule 48 (Exp)
 
 
-状态 64
+State 64
 
    39 Exp: Exp . ASSIGNOP Exp
    40    | Exp . AND Exp
@@ -863,7 +869,7 @@ Args (52)
     $default  reduce using rule 49 (Exp)
 
 
-状态 65
+State 65
 
    39 Exp: Exp . ASSIGNOP Exp
    40    | Exp . AND Exp
@@ -890,7 +896,7 @@ Args (52)
     LB        shift, and go to state 81
 
 
-状态 66
+State 66
 
    28 Stmt: RETURN Exp . SEMI
    39 Exp: Exp . ASSIGNOP Exp
@@ -917,7 +923,7 @@ Args (52)
     LB        shift, and go to state 81
 
 
-状态 67
+State 67
 
    29 Stmt: IF LP . Exp RP Stmt
    30     | IF LP . Exp RP Stmt ELSE Stmt
@@ -929,10 +935,10 @@ Args (52)
     NOT    shift, and go to state 49
     LP     shift, and go to state 50
 
-    Exp  转到状态89
+    Exp  转到状态 89
 
 
-状态 68
+State 68
 
    31 Stmt: WHILE LP . Exp RP Stmt
 
@@ -943,31 +949,31 @@ Args (52)
     NOT    shift, and go to state 49
     LP     shift, and go to state 50
 
-    Exp  转到状态90
+    Exp  转到状态 90
 
 
-状态 69
+State 69
 
    23 CompSt: LC DefList StmtList RC .
 
     $default  reduce using rule 23 (CompSt)
 
 
-状态 70
+State 70
 
    24 StmtList: Stmt StmtList .
 
     $default  reduce using rule 24 (StmtList)
 
 
-状态 71
+State 71
 
    26 Stmt: Exp SEMI .
 
     $default  reduce using rule 26 (Stmt)
 
 
-状态 72
+State 72
 
    39 Exp: Exp ASSIGNOP . Exp
 
@@ -978,10 +984,10 @@ Args (52)
     NOT    shift, and go to state 49
     LP     shift, and go to state 50
 
-    Exp  转到状态91
+    Exp  转到状态 91
 
 
-状态 73
+State 73
 
    42 Exp: Exp RELOP . Exp
 
@@ -992,10 +998,10 @@ Args (52)
     NOT    shift, and go to state 49
     LP     shift, and go to state 50
 
-    Exp  转到状态92
+    Exp  转到状态 92
 
 
-状态 74
+State 74
 
    43 Exp: Exp PLUS . Exp
 
@@ -1006,10 +1012,10 @@ Args (52)
     NOT    shift, and go to state 49
     LP     shift, and go to state 50
 
-    Exp  转到状态93
+    Exp  转到状态 93
 
 
-状态 75
+State 75
 
    44 Exp: Exp MINUS . Exp
 
@@ -1020,10 +1026,10 @@ Args (52)
     NOT    shift, and go to state 49
     LP     shift, and go to state 50
 
-    Exp  转到状态94
+    Exp  转到状态 94
 
 
-状态 76
+State 76
 
    45 Exp: Exp STAR . Exp
 
@@ -1034,10 +1040,10 @@ Args (52)
     NOT    shift, and go to state 49
     LP     shift, and go to state 50
 
-    Exp  转到状态95
+    Exp  转到状态 95
 
 
-状态 77
+State 77
 
    46 Exp: Exp DIV . Exp
 
@@ -1048,10 +1054,10 @@ Args (52)
     NOT    shift, and go to state 49
     LP     shift, and go to state 50
 
-    Exp  转到状态96
+    Exp  转到状态 96
 
 
-状态 78
+State 78
 
    40 Exp: Exp AND . Exp
 
@@ -1062,10 +1068,10 @@ Args (52)
     NOT    shift, and go to state 49
     LP     shift, and go to state 50
 
-    Exp  转到状态97
+    Exp  转到状态 97
 
 
-状态 79
+State 79
 
    41 Exp: Exp OR . Exp
 
@@ -1076,17 +1082,17 @@ Args (52)
     NOT    shift, and go to state 49
     LP     shift, and go to state 50
 
-    Exp  转到状态98
+    Exp  转到状态 98
 
 
-状态 80
+State 80
 
    53 Exp: Exp DOT . ID
 
     ID  shift, and go to state 99
 
 
-状态 81
+State 81
 
    52 Exp: Exp LB . Exp RB
 
@@ -1097,10 +1103,10 @@ Args (52)
     NOT    shift, and go to state 49
     LP     shift, and go to state 50
 
-    Exp  转到状态100
+    Exp  转到状态 100
 
 
-状态 82
+State 82
 
    38 Dec: VarDec ASSIGNOP Exp .
    39 Exp: Exp . ASSIGNOP Exp
@@ -1128,21 +1134,21 @@ Args (52)
     $default  reduce using rule 38 (Dec)
 
 
-状态 83
+State 83
 
    36 DecList: Dec COMMA DecList .
 
     $default  reduce using rule 36 (DecList)
 
 
-状态 84
+State 84
 
    51 Exp: ID LP RP .
 
     $default  reduce using rule 51 (Exp)
 
 
-状态 85
+State 85
 
    39 Exp: Exp . ASSIGNOP Exp
    40    | Exp . AND Exp
@@ -1172,28 +1178,28 @@ Args (52)
     $default  reduce using rule 58 (Args)
 
 
-状态 86
+State 86
 
    50 Exp: ID LP Args . RP
 
     RP  shift, and go to state 102
 
 
-状态 87
+State 87
 
    47 Exp: LP Exp RP .
 
     $default  reduce using rule 47 (Exp)
 
 
-状态 88
+State 88
 
    28 Stmt: RETURN Exp SEMI .
 
     $default  reduce using rule 28 (Stmt)
 
 
-状态 89
+State 89
 
    29 Stmt: IF LP Exp . RP Stmt
    30     | IF LP Exp . RP Stmt ELSE Stmt
@@ -1221,7 +1227,7 @@ Args (52)
     LB        shift, and go to state 81
 
 
-状态 90
+State 90
 
    31 Stmt: WHILE LP Exp . RP Stmt
    39 Exp: Exp . ASSIGNOP Exp
@@ -1248,7 +1254,7 @@ Args (52)
     LB        shift, and go to state 81
 
 
-状态 91
+State 91
 
    39 Exp: Exp . ASSIGNOP Exp
    39    | Exp ASSIGNOP Exp .
@@ -1274,7 +1280,7 @@ Args (52)
     $default  reduce using rule 39 (Exp)
 
 
-状态 92
+State 92
 
    39 Exp: Exp . ASSIGNOP Exp
    40    | Exp . AND Exp
@@ -1300,7 +1306,7 @@ Args (52)
     $default  reduce using rule 42 (Exp)
 
 
-状态 93
+State 93
 
    39 Exp: Exp . ASSIGNOP Exp
    40    | Exp . AND Exp
@@ -1322,7 +1328,7 @@ Args (52)
     $default  reduce using rule 43 (Exp)
 
 
-状态 94
+State 94
 
    39 Exp: Exp . ASSIGNOP Exp
    40    | Exp . AND Exp
@@ -1344,7 +1350,7 @@ Args (52)
     $default  reduce using rule 44 (Exp)
 
 
-状态 95
+State 95
 
    39 Exp: Exp . ASSIGNOP Exp
    40    | Exp . AND Exp
@@ -1364,7 +1370,7 @@ Args (52)
     $default  reduce using rule 45 (Exp)
 
 
-状态 96
+State 96
 
    39 Exp: Exp . ASSIGNOP Exp
    40    | Exp . AND Exp
@@ -1384,7 +1390,7 @@ Args (52)
     $default  reduce using rule 46 (Exp)
 
 
-状态 97
+State 97
 
    39 Exp: Exp . ASSIGNOP Exp
    40    | Exp . AND Exp
@@ -1408,7 +1414,7 @@ Args (52)
     $default  reduce using rule 40 (Exp)
 
 
-状态 98
+State 98
 
    39 Exp: Exp . ASSIGNOP Exp
    40    | Exp . AND Exp
@@ -1433,14 +1439,14 @@ Args (52)
     $default  reduce using rule 41 (Exp)
 
 
-状态 99
+State 99
 
    53 Exp: Exp DOT ID .
 
     $default  reduce using rule 53 (Exp)
 
 
-状态 100
+State 100
 
    39 Exp: Exp . ASSIGNOP Exp
    40    | Exp . AND Exp
@@ -1467,7 +1473,7 @@ Args (52)
     RB        shift, and go to state 105
 
 
-状态 101
+State 101
 
    57 Args: Exp COMMA . Args
 
@@ -1478,18 +1484,18 @@ Args (52)
     NOT    shift, and go to state 49
     LP     shift, and go to state 50
 
-    Exp   转到状态85
-    Args  转到状态106
+    Exp   转到状态 85
+    Args  转到状态 106
 
 
-状态 102
+State 102
 
    50 Exp: ID LP Args RP .
 
     $default  reduce using rule 50 (Exp)
 
 
-状态 103
+State 103
 
    29 Stmt: IF LP Exp RP . Stmt
    30     | IF LP Exp RP . Stmt ELSE Stmt
@@ -1505,12 +1511,12 @@ Args (52)
     IF      shift, and go to state 52
     WHILE   shift, and go to state 53
 
-    CompSt  转到状态54
-    Stmt    转到状态107
-    Exp     转到状态57
+    CompSt  转到状态 54
+    Stmt    转到状态 107
+    Exp     转到状态 57
 
 
-状态 104
+State 104
 
    31 Stmt: WHILE LP Exp RP . Stmt
 
@@ -1525,26 +1531,26 @@ Args (52)
     IF      shift, and go to state 52
     WHILE   shift, and go to state 53
 
-    CompSt  转到状态54
-    Stmt    转到状态108
-    Exp     转到状态57
+    CompSt  转到状态 54
+    Stmt    转到状态 108
+    Exp     转到状态 57
 
 
-状态 105
+State 105
 
    52 Exp: Exp LB Exp RB .
 
     $default  reduce using rule 52 (Exp)
 
 
-状态 106
+State 106
 
    57 Args: Exp COMMA Args .
 
     $default  reduce using rule 57 (Args)
 
 
-状态 107
+State 107
 
    29 Stmt: IF LP Exp RP Stmt .
    30     | IF LP Exp RP Stmt . ELSE Stmt
@@ -1554,14 +1560,14 @@ Args (52)
     $default  reduce using rule 29 (Stmt)
 
 
-状态 108
+State 108
 
    31 Stmt: WHILE LP Exp RP Stmt .
 
     $default  reduce using rule 31 (Stmt)
 
 
-状态 109
+State 109
 
    30 Stmt: IF LP Exp RP Stmt ELSE . Stmt
 
@@ -1576,12 +1582,12 @@ Args (52)
     IF      shift, and go to state 52
     WHILE   shift, and go to state 53
 
-    CompSt  转到状态54
-    Stmt    转到状态110
-    Exp     转到状态57
+    CompSt  转到状态 54
+    Stmt    转到状态 110
+    Exp     转到状态 57
 
 
-状态 110
+State 110
 
    30 Stmt: IF LP Exp RP Stmt ELSE Stmt .
 

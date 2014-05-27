@@ -86,6 +86,13 @@ float {//printf("TYPE:%s\n", yytext);
 	yylval.value.idValue=temp;
 	return(TYPE);}
 
+for {yylval.state = "FOR"; yylval.line = yylineno;
+	return(FOR);}
+break {yylval.state = "BREAK"; yylval.line = yylineno;
+	return(BREAK);}
+continue {yylval.state = "CONTINUE"; yylval.line = yylineno;
+	return(CONTINUE);}
+
 {id} {char *temp = (char *)malloc(sizeof(char) * yyleng);
 	strcpy(temp, yytext);
 	yylval.value.idValue = temp;

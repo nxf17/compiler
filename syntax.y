@@ -77,6 +77,7 @@
 %token LP RP LB RB LC RC
 %token STRUCT
 %token RETURN IF ELSE WHILE
+%token FOR BREAK CONTINUE
 
 %left ASSIGNOP RELOP
 %left OR
