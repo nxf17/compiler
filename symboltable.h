@@ -5,19 +5,25 @@
 #include <stdlib.h>
 #include "tree.h"
 
-#define HASH_SLOT 0x4000	//hash表槽数（其实还未理解hash_pjw要的槽数是这么多...）
+#define HASH_SLOT 0x4000	//hash表槽数（还未理解hash_pjw要的槽数是这么多...）
 #define LAYER_DEPTH 10	//层最大深度
 
 typedef struct Type_ *Type;
 typedef struct Fun_ *Fun;
 typedef struct FieldList_ *FieldList;
 typedef struct varElement varElement;
-
+typedef struct structTableElement structTableElement;
+typedef struct funcTableElement funcTableElement;
+typedef struct argElement argElement;
 //目前考虑把函数和变量放在两张表里
 
 static varElement* hashTable[HASH_SLOT];	//hash表项
 static varElement* layerStack[LAYER_DEPTH];	//控制每层的栈
 static int layer = 0;	//目前在第几层
+
+static structTableElement *structTableHeader; 	//结构体表的表头
+
+static funcTableElement *funcTableHeader;	//函数表的表头
 
 /* 类型 */
 struct Type_ {
@@ -40,7 +46,7 @@ struct FieldList_ {
 };
 
 /* 变量表项 */
-struct varElement {
+struct varElement {	
 	char *name;	//变量名
 	Type type;	//变量类型
 	int layer_no;	//在哪一层
@@ -49,7 +55,27 @@ struct varElement {
 	struct varElement *slot_next;	//同一槽的下一个
 };
 
-void init_table();	//初始化符号表
+/* 结构体变量表项 */
+struct structTableELement {	
+	char *tagName;	//结构体的标签名
+	Type type;
+	struct structTableElement *next;
+};
+
+/* 函数表项 */
+struct funcTableElement {
+	char *funcName; //函数名
+	Type type; 	//函数的返回类型
+	argElement *argListHeader;
+};
+
+/* 参数项 */
+struct argElement {
+	char name;	//参数名
+	Type type;	//参数类型
+};
+
+void init_all_table();	//初始化符号表
 unsigned int hashpjw(char *);
 void insert(varElement *);	//插入一个变量
 varElement* searchAll(char *); 	//搜索一个变量最里层的定义
