@@ -634,6 +634,15 @@ Stmt :
 		p->productionRule = 6;
 		push(p);				
 	}
+	| BREAK SEMI {
+	
+	}
+	| CONTINUE SEMI {
+	
+	}
+	| FOR LP OptExp SEMI Exp SEMI OptExp RP Stmt {
+	
+	}
 ;
 DefList	: 
 	Def DefList {
@@ -738,6 +747,14 @@ Dec :
 
 		p->productionRule = 2;
 		push(p);				
+	}
+;
+OptExp : 
+	Exp {
+	
+	}
+	| {
+	
 	}
 ;
 Exp : 
