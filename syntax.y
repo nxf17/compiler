@@ -635,13 +635,83 @@ Stmt :
 		push(p);				
 	}
 	| BREAK SEMI {
-	
+		TreeNode *p = (TreeNode *)malloc(sizeof(TreeNode));
+		TreeNode *p1 = (TreeNode *)malloc(sizeof(TreeNode));
+		TreeNode *p2 = (TreeNode *)malloc(sizeof(TreeNode));	
+		p1->state = $1.state;
+		p1->line = $1.line;
+		p1->firstChild = NULL;
+		p1->rightBrother = p2;
+		p2->state = $2.state;
+		p2->line = $2.line;
+		p2->firstChild = NULL:
+		p2->rightBrother = NULL;
+		p->state = "Stmt";
+		p->line = p1->line;
+		p->firstChild = p1;
+		p->rightBrother = NULL;
+		p->productionRule = 7;
+		push(p);
 	}
 	| CONTINUE SEMI {
-	
+		TreeNode *p = (TreeNode *)malloc(sizeof(TreeNode));
+		TreeNode *p1 = (TreeNode *)malloc(sizeof(TreeNode));
+		TreeNode *p2 = (TreeNode *)malloc(sizeof(TreeNode));	
+		p1->state = $1.state;
+		p1->line = $1.line;
+		p1->firstChild = NULL;
+		p1->rightBrother = p2;
+		p2->state = $2.state;
+		p2->line = $2.line;
+		p2->firstChild = NULL:
+		p2->rightBrother = NULL;
+		p->state = "Stmt";
+		p->line = p1->line;
+		p->firstChild = p1;
+		p->rightBrother = NULL;
+		p->productionRule = 8;
+		push(p);
 	}
 	| FOR LP OptExp SEMI Exp SEMI OptExp RP Stmt {
-	
+		TreeNode *p = (TreeNode *)malloc(sizeof(TreeNode));
+		TreeNode *p1 = (TreeNode *)malloc(sizeof(TreeNode));
+		TreeNode *p2 = (TreeNode *)malloc(sizeof(TreeNode));
+		TreeNode *p3 = pop();
+		TreeNode *p4 = (TreeNode *)malloc(sizeof(TreeNode));
+		TreeNode *p5 = pop();
+		TreeNode *p6 = (TreeNode *)malloc(sizeof(TreeNode));
+		TreeNode *p7 = pop();
+		TreeNode *p8 = (TreeNode *)malloc(sizeof(TreeNode));
+		TreeNode *p9 = pop();
+		p1->state = $1.state;
+		p1->line = $1.line;
+		p1->firstChild = NULL;
+		p1->rightBrother = p2;
+		p2->state = $2.state;
+		p2->line = $2.line;
+		p2->firstChild = NULL;
+		p2->rightBrother = p3;
+		p3->rightBrother = p4;
+		p4->state = $4.state;
+		p4->line = $4.line;
+		p4->firstChild = NULL;
+		p4->rightBrother = p5;
+		p5->rightBrother = p6;
+		p6->state = $6.state;
+		p6->line = $6.line;
+		p6->firstChild = NULL;
+		p6->rightBrother = p7;
+		p7->rightBrother = p8;
+		p8->state = $8.state;
+		p8->line = $8.line;
+		p8->firstChild = NULL;
+		p8->rightBrother = p9;
+		p->state = "Stmt";
+		p->line = p1->line;
+		p->firstChild = p1;
+		p->rightBrother = NULL;
+		p->productionRule = 10;
+		push(p);
 	}
 ;
 DefList	: 
@@ -751,10 +821,21 @@ Dec :
 ;
 OptExp : 
 	Exp {
-	
+		TreeNode *p = (TreeNode *)malloc(sizeof(TreeNode));
+		TreeNode *exp = pop();
+		p->state = "OptExp";
+		p->line = exp->line;
+		p->firstChild = exp;
+		p->rightBrother = NULL;
+		p->productionRule = 1;
+		push(p);
 	}
-	| {
-	
+	| {//empty
+		TreeNode *p = (TreeNode *)malloc(sizeof(TreeNode));	
+		p->state = "empty";
+		p->firstChild = p->rightBrother = NULL;
+		p->productionRule = 2;
+		push(p);
 	}
 ;
 Exp : 
