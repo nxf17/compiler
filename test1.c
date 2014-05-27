@@ -4,5 +4,8 @@ int main(){
 	int c;
 	/* 尝试这种注释 */
 	c = a + b;
+	while (1) {
+		break;		
+	}
 	return 0;
 }

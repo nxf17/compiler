@@ -61,7 +61,7 @@ void doExtDef(TreeNode *p) {
 	//printf("TreeNode->productionRule: %d\n", p->productionRule);
 	switch (p->productionRule) {
 		case 1:{
-			//将doExtDefList()返回的变量链表赋为doSpecifier()返回的Type,插入变量表
+			//将doExtDecList()返回的变量链表赋为doSpecifier()返回的Type,插入变量表
 			TreeNode *p1 = p->firstChild;
 			TreeNode *p2 = p1->rightBrother;
 		//	printf("here!\n");
@@ -72,7 +72,7 @@ void doExtDef(TreeNode *p) {
 			varElement *elemn = NULL;
 			while (elem != NULL) {
 		//		printf("here!\n");
-				elem->type = type;	//相当不确定这句指针操作的正确性
+				elem->type = type;	
 				elemn = elem->layer_next;
 				insert(elem);
 				elem = elemn;
@@ -301,7 +301,7 @@ void doStmt(TreeNode *p) {
 		case 8:
 			break;
 		case 9:{
-			//the for loop
+			//the for loop,待完善，应该是中间那个要做个type检查。
 			TreeNode *p3 = p->firstChild->rightBrother->rightBrother;
 			TreeNode *p5 = p3->rightBrother->rightBrother;
 			TreeNode *p7 = p5->rightBrother->rightBrother;
