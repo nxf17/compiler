@@ -644,7 +644,7 @@ Stmt :
 		p1->rightBrother = p2;
 		p2->state = $2.state;
 		p2->line = $2.line;
-		p2->firstChild = NULL:
+		p2->firstChild = NULL;
 		p2->rightBrother = NULL;
 		p->state = "Stmt";
 		p->line = p1->line;
@@ -663,7 +663,7 @@ Stmt :
 		p1->rightBrother = p2;
 		p2->state = $2.state;
 		p2->line = $2.line;
-		p2->firstChild = NULL:
+		p2->firstChild = NULL;
 		p2->rightBrother = NULL;
 		p->state = "Stmt";
 		p->line = p1->line;
@@ -710,7 +710,7 @@ Stmt :
 		p->line = p1->line;
 		p->firstChild = p1;
 		p->rightBrother = NULL;
-		p->productionRule = 10;
+		p->productionRule = 9;
 		push(p);
 	}
 ;

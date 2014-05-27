@@ -23,6 +23,7 @@ extern void doDef(TreeNode *p);
 extern varElement* doDecList(TreeNode *p);
 extern varElement* doDec(TreeNode *p);
 extern Type doExp(TreeNode *p);
+extern Type doOptExp(TreeNode *p);
 
 #endif
 

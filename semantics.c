@@ -296,6 +296,21 @@ void doStmt(TreeNode *p) {
 			doStmt(p5);
 			break;
 			   }
+		case 7:
+			break;
+		case 8:
+			break;
+		case 9:{
+			//the for loop
+			TreeNode *p3 = p->firstChild->rightBrother->rightBrother;
+			TreeNode *p5 = p3->rightBrother->rightBrother;
+			TreeNode *p7 = p5->rightBrother->rightBrother;
+			TreeNode *p9 = p7->rightBrother->rightBrother;
+			doOptExp(p3);
+			doExp(p5);
+			doOptExp(p7);
+			doStmt(p9);
+			   }
 	}
 }
 
@@ -414,6 +429,18 @@ bool type_equal(Type x, Type y) {
 	return false;
 }//判断类型是否匹配
 
+Type doOptExp(TreeNode *p) {
+	switch(p->productionRule) {
+		case 1: {
+			TreeNode *p1 = p->firstChild;
+			return(doExp(p1));
+			}	
+		case 2: {
+			break;
+			return NULL;	//还不确定返回NULL正不正确
+			}
+	}
+}
 
 Type doExp(TreeNode *p) {
 	//printf("doExp\n");
