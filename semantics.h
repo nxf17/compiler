@@ -12,9 +12,9 @@ extern void doStructSpecifier(TreeNode *p);
 extern void doOptTag(TreeNode *p);
 extern void doTag(TreeNode *p);
 extern varElement* doVarDec(TreeNode *p);
-extern void doFunDec(TreeNode *p);
-extern void doVarList(TreeNode *p);
-extern void doParamDec(TreeNode *p);
+extern void doFunDec(Type type, TreeNode *p);
+extern argElement* doVarList(TreeNode *p);
+extern argElement* doParamDec(TreeNode *p);
 extern void doCompSt(TreeNode *p);
 extern void doStmtList(TreeNode *p);
 extern void doStmt(TreeNode *p);
@@ -24,6 +24,7 @@ extern varElement* doDecList(TreeNode *p);
 extern varElement* doDec(TreeNode *p);
 extern Type doExp(TreeNode *p);
 extern Type doOptExp(TreeNode *p);
-
+extern argElement* doArgs(TreeNode *p);
+extern int compareArgs(argElement *arg1, argElement *arg2);
 #endif
 

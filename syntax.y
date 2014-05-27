@@ -1190,7 +1190,7 @@ Args:
 		args->rightBrother = p->rightBrother = NULL;
 		p->line = exp->line;
 		p->firstChild = exp;
-		
+		p->productionRule = 1;
 		push(p);
 	}
 	|Exp {
@@ -1200,7 +1200,7 @@ Args:
 		exp->rightBrother = p->rightBrother = NULL;
 		p->line = exp->line;
 		p->firstChild = exp;
-		
+		p->productionRule = 2;
 		push(p);	
 	}
 ;

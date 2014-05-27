@@ -79,7 +79,7 @@ void doExtDef(TreeNode *p) {
 			}
 			break;
 			   }
-		case 2:	{//这条不清楚存在的意义，可以暂不管
+		case 2:	{//待完成，用于只定义结构体的tag
 			TreeNode *p1 = p->firstChild;
 			doSpecifier(p1);
 			break;
@@ -88,8 +88,8 @@ void doExtDef(TreeNode *p) {
 			TreeNode *p1 = p->firstChild;
 			TreeNode *p2 = p1->rightBrother;
 			TreeNode *p3 = p2->rightBrother;
-			doSpecifier(p1);
-			doFunDec(p2);
+			Type type = doSpecifier(p1);
+			doFunDec(type, p2);	//将返回类型传进去，在doFunDec中处理函数表
 			doCompSt(p3);
 			break;
 			   }
@@ -198,30 +198,64 @@ varElement* doVarDec(TreeNode *p) {
 	}
 }
 
-void doFunDec(TreeNode *p) {	//待完成
+void doFunDec(Type type, TreeNode *p) {
 	//printf("doFunDec\n");
 	//printf("TreeNode->state:%s\n", p->state);
+	TreeNode *p1 = p->firstChild;
+	char * funcname = (char *)malloc(sizeof(char*)*(strlen((p1->value).idValue)+1));
+	strcpy(funcname, p1->value.idValue);	//得到函数名
+	if (searchFunc(funcname) != NULL) {
+		printf("Error type 4 at line %d '&&': function redefined\n", p->line);	//函数重复定义
+		return;	
+	}
+	funcTableElement *elem = (funcTableElement *)malloc(sizeof(funcTableElement));
+	elem->name = funcname;
+	elem->type = type;
+	elem->argListHeader = NULL;
 	switch (p->productionRule) {
-		case 1:
+		case 1: {
+			TreeNode *p3 = p1->rightBrother->rightBrother;
+			elem->argListHeader = doVarList(p3);
+			insertFunc(elem);
 			break;
-		case 2:
+			}
+		case 2: {
+			insertFunc(elem);
 			break;
+			}
 	}
 }
 
-void doVarList(TreeNode *p) {	//待完成
+argElement* doVarList(TreeNode *p) { //仍然用定义串联的方法返回参数列表
 	//printf("doVarList\n");
 	//printf("TreeNode->state:%s\n", p->state);
 	switch (p->productionRule) {
-		case 1:
+		case 1: {
+			TreeNode *p1 = p->firstChild;
+			TreeNode *p3 = p1->rightBrother->rightBrother;
+			argElement *arg1 = doParamDec(p1);
+			argElement *arg2 = doVarList(p3);
+			arg1->next = arg2;
+			return arg1;
 			break;
-		case 2:
+			}
+		case 2: {
+			TreeNode *p1 = p->firstChild;
+			argElement *arg1 = doParamDec(p1);
+			return arg1;
 			break;
+			}
 	}
 }
 
-void doParamDec(TreeNode *p) {	//待完成
+argElement* doParamDec(TreeNode *p) {	//这边有个参数为数组的处理，考虑是否好完成
 	//printf("doParamDec\n");
+	TreeNode *p1 = p->firstChild;
+	TreeNode *p2 = p1->rightBrother;	
+	argElement *arg = (argElement *)malloc(sizeof(argElement));
+	arg->type = doSpecifier(p1);
+	arg->next = NULL;
+	return arg;
 }
 
 void doCompSt(TreeNode *p) {
@@ -421,6 +455,7 @@ varElement* doDec(TreeNode *p) {
 }
 
 bool type_equal(Type x, Type y) {
+	//待完善，之后要扩充成支持所有类型
 	if(x->kind == BASIC && y->kind == BASIC) {
 		if(x->u.basic == y->u.basic) {
 			return true;
@@ -584,39 +619,33 @@ Type doExp(TreeNode *p) {
 			case 11:return doExp(tempNode->rightBrother);
 					//NOT Exp
 				
-			case 12:{Type type = (Type)malloc(sizeof(struct Type_));
-					varElement *id = searchAll(tempNode->value.idValue);
-					if(id == NULL) {
+			case 12:{funcTableElement *func = searchFunc(tempNode->value.idValue);
+					if(func == NULL) {
 						printf("Error type 4 at line %d:undefined function %s\n", p->line, tempNode->value.idValue);
+						return NULL;
 					}
-					else if(id->type->kind == FUNCTION) {//FUNCTION
-						printf("Error type 4 at line %d:undefined function %s\n", p->line, tempNode->value.idValue);
-					}
-					//else if(){}//函数参数类型不匹配
-					else {
-						type = id->type;
-						return type;
+					TreeNode *argNode = tempNode->rightBrother->rightBrother;
+					argElement *args = doArgs(argNode);
+                                        //if (args == NULL) printf("doArgs returns null!\n");
+					if (compareArgs(func->argListHeader, args) == 0) {	//参数匹配有问题
+						printf("Error type 9 at line %d:function var list not matched %s\n", p->line, tempNode->value.idValue);
+						return func->type;
 					}
 					break;
 					//ID LP Args RP
-					}
-			case 13:{Type type = (Type)malloc(sizeof(struct Type_));
-					varElement *id =searchAll(tempNode->value.idValue);
-					//在符号表中寻找
-					if(id == NULL) {
+				}
+			case 13:{funcTableElement *func = searchFunc(tempNode->value.idValue);
+					if(func == NULL) {
 						printf("Error type 4 at line %d:undefined function %s\n", p->line, tempNode->value.idValue);
+						return NULL;
 					}
-					else if(id->type->kind == FUNCTION) {//FUNCTION
-						printf("Error type 4 at line %d:undefined function %s\n", p->line, tempNode->value.idValue);
-					}
-					//else if(){}//函数参数数量类型不匹配
-					else {
-						type = id->type;
-						return type;
+					else if (func->argListHeader != NULL) {	//函数定义中有参数而调用没有
+						printf("Error type 9 at line %d:function var list not matched %s\n", p->line, tempNode->value.idValue);
+						return func->type;
 					}
 					break;
 					//ID LP RP
-					}
+				}
 			case 14:{Type type = (Type)malloc(sizeof(struct Type_));
 					TreeNode *temp2Node = tempNode->rightBrother->rightBrother;
 					Type t1 = doExp(tempNode);
@@ -662,9 +691,6 @@ Type doExp(TreeNode *p) {
 					if(id == NULL) {
 						printf("Error type 4 at line %d:undefined variable %s\n", p->line, tempNode->value.idValue);
 					}
-					else if(id->type->kind == FUNCTION) {//FUNCTION
-						printf("Error type 4 at line %d:undefined variable %s\n", p->line, tempNode->value.idValue);
-					}//若为函数名则也错
 					else {
 						type = id->type;
 						return type;
@@ -689,13 +715,48 @@ Type doExp(TreeNode *p) {
 	return NULL;
 }
 
-void doArgs(TreeNode *p) {
+argElement *doArgs(TreeNode *p) {
 	//printf("doArgs\n");
 	//printf("TreeNode->state:%s\n", p->state);
 	switch (p->productionRule) {
-		case 1:
+		case 1: {
+			TreeNode *p1 = p->firstChild;
+			TreeNode *p3 = p1->rightBrother->rightBrother;
+			argElement *arg1 = (argElement *)malloc(sizeof(argElement));
+			arg1->type = doExp(p1);
+			argElement *arg2 = doArgs(p3);
+			arg1->next = arg2;
+			return arg1;
 			break;
-		case 2:
+			}
+		case 2: {
+			TreeNode *p1 = p->firstChild;
+			argElement *arg1 = (argElement *)malloc(sizeof(argElement));
+			arg1->type = doExp(p1);
+			arg1->next = NULL;
+			//if (arg1 == NULL) printf("wow...\n");
+			return arg1;
 			break;
+			}
 	}
 }
+
+int compareArgs (argElement *arg1, argElement *arg2) {
+	argElement *p1 = arg1; 
+	argElement *p2 = arg2;
+	while (p1 != NULL) {
+		printf("p1 %d\n", p1->type->u.basic);
+		printf("p2 %d\n", p2->type->u.basic);
+		if (p2 == NULL)
+			return 0;
+		if (!type_equal(p1->type, p2->type))
+			return 0;
+		p1 = p1->next;
+		p2 = p2->next;		
+	}
+	if (p2 != NULL)
+		return 0;
+	return 1;
+}
+
+

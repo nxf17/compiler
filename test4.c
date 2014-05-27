@@ -1,5 +1,10 @@
+int foo(int x) {
+	float y;
+}
+
 int main()
 {
-	return ~;
+	foo(3);
+	return 1;
 }
 

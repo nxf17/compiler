@@ -20,6 +20,9 @@ void init_table() {
 	for (i=0; i<LAYER_DEPTH; i++)
 		layerStack[i] = NULL;
 	layer = 0;
+
+	funcTableHeader = NULL;
+	structTableHeader = NULL;
 }
 
 //插入变量表，要求调用者在调用前处理好name和type
@@ -106,3 +109,26 @@ void out_of_a_layer() {
 	}
 	layer--;
 }
+
+//向函数表插入一个函数项
+void insertFunc(funcTableElement *func) {
+	printf("in insertFunc %s\n", func->name);
+	func->next = funcTableHeader;
+	funcTableHeader = func;
+}	
+
+//查询一个函数
+funcTableElement* searchFunc(char * funcname) {
+	printf("in searchFunc %s\n", funcname);
+	funcTableElement *p = funcTableHeader;
+	//if (p == NULL) printf("null\n");
+	while (p != NULL) {
+		//printf("   now %s\n", p->name);
+		if (strcmp(p->name, funcname)==0)
+			return p;
+		p = p->next;
+	}
+	return NULL;
+}
+
+

@@ -27,7 +27,7 @@ static funcTableElement *funcTableHeader;	//函数表的表头
 
 /* 类型 */
 struct Type_ {
-	enum{BASIC, ARRAY, STRUCTURE, FUNCTION} kind;
+	enum{BASIC, ARRAY, STRUCTURE} kind;
 	union {
 		int basic;	//基本类型:0-int, 1-float
 		struct {	//数组类型
@@ -64,15 +64,17 @@ struct structTableELement {
 
 /* 函数表项 */
 struct funcTableElement {
-	char *funcName; //函数名
+	char *name; //函数名
 	Type type; 	//函数的返回类型
 	argElement *argListHeader;
+	funcTableElement *next;
 };
 
 /* 参数项 */
 struct argElement {
 	char name;	//参数名
 	Type type;	//参数类型
+	argElement *next;
 };
 
 void init_all_table();	//初始化符号表
@@ -82,5 +84,8 @@ varElement* searchAll(char *); 	//搜索一个变量最里层的定义
 varElement* search(char *);	//搜索一个变量在此层的定义
 void into_a_layer();	//进入一层
 void out_of_a_layer();	//从一层中出来
+
+void insertFunc(funcTableElement *);	//向函数表插入一个函数项
+funcTableElement* searchFunc(char *);	//在函数表查询函数
 
 #endif
