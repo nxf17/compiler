@@ -4,7 +4,7 @@ int foo(int x) {
 
 int main()
 {
-	foo(3);
+	foo(3, 4);
 	return 1;
 }
 
