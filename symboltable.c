@@ -30,7 +30,7 @@ void insert(varElement* elem) {
 	printf("insert index %d\n", index);
 	elem->slot_no = index;
 	elem->layer_no = layer;
-	elem->layer_next = NULL;
+	elem->next = NULL;
 	elem->slot_next = NULL;
 	//varElement *p = hashTable[index];
 	//varElement *q = layerStack[layer];
@@ -49,7 +49,7 @@ void insert(varElement* elem) {
 	if (layerStack[layer] == NULL)
 		layerStack[layer] = elem;
 	else {
-		elem->layer_next = layerStack[layer];
+		elem->next = layerStack[layer];
 		layerStack[layer] = elem;
 	}
 }
@@ -64,7 +64,7 @@ varElement *searchAll(char *name) {
 		//因为每次都把越里层的插在前面，所以找到的第一个一定是最里层的定义
 		if (strcmp(p->name, name) == 0)
 			return p;
-		p = p->slot_next;
+		p = p->next;
 	}
 	return NULL;
 }
@@ -80,7 +80,7 @@ varElement *search(char *name) {
 		if (strcmp(p->name, name)==0 && p->layer_no == layer)
 			//名称和层数都相同，表示被定义过
 			return p;
-		p = p->slot_next;
+		p = p->next;
 	}
 	return NULL;
 }
@@ -99,7 +99,7 @@ void out_of_a_layer() {
 	}
 	varElement *q = NULL;	//指向同一层链表中p的下一个
 	while (p != NULL) {
-		q = p->layer_next;
+		q = p->next;
 		int slotno = p->slot_no;
 		hashTable[slotno] = p->slot_next;
 		free(p);

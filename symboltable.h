@@ -34,7 +34,8 @@ struct Type_ {
 			int size;
 			Type elem;	//一个指针，串起数组元素
 		}array;
-		FieldList structure;	//结构体类型信息是一个链表
+		//FieldList structure;	//结构体类型信息是一个链表
+		varElement *var; 
 	}u;
 };
 
@@ -51,7 +52,7 @@ struct varElement {
 	Type type;	//变量类型
 	int layer_no;	//在哪一层
 	int slot_no;	//在哪个槽
-	struct varElement *layer_next;	//同一层的下一个
+	struct varElement *next;	//在函数表表示同一层的下一个，在结构体中就是下一个成员
 	struct varElement *slot_next;	//同一槽的下一个
 };
 

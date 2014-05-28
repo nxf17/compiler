@@ -73,7 +73,7 @@ void doExtDef(TreeNode *p) {
 			while (elem != NULL) {
 		//		printf("here!\n");
 				elem->type = type;	
-				elemn = elem->layer_next;
+				elemn = elem->next;
 				insert(elem);
 				elem = elemn;
 			}
@@ -112,7 +112,7 @@ varElement* doExtDecList(TreeNode *p) {
 			TreeNode *p3 = p1->rightBrother->rightBrother;
 			varElement *elem1 = doVarDec(p1);
 			varElement *elem2 = doExtDecList(p3);
-			elem1->layer_next = elem2;
+			elem1->next = elem2;
 			return elem1;
 			break;
 			   }
@@ -156,19 +156,38 @@ Type doStructSpecifier(TreeNode *p) {	//待完成
 					TreeNode *p2 = p->firstChild->rightBrother;
 					TreeNode *p4 = p2->rightBrother->rightBrother;
 					char *tagname = doOptTag(p2);
-					if (tagname != NULL) {
+					if (tagname != NULL) {	//有标签名，把它加入结构体表中
 						if (searchStruct(tagname) != NULL || searchAll(tagname) != NULL) {
-							printf("Error type 16 at line %d: struct name is same as other struct name or variable name\n", p->line);					
+							printf("Error type 16 at line %d: struct tag %s is same as other struct tag or variable name\n", p->line, tagname);					
 							return NULL;
 						}
-						//structTableElement
-						//doStructDefList()
+						structTableElement *str = (structTableElement *)malloc(sizeof(structTableElement));
+						str->name = tagname;
+						str->type->kind = STRUCTURE;
+						str->type->u.var = doDefList(p4, 1);
+						insertStruct(str);
+						return str->type;
+					} else {
+						Type temptype = (Type)malloc(sizeof(struct Type_));
+						temptype->kind = STRUCTURE;
+						temptype->u.var = doDefList(p4, 1);
+						return temptype;
 					}
-					
 					break;
 				}
-		case 2:
-			break;
+		case 2: {
+					//Tag要在之前定义过才能有效，去结构体表中查找
+					TreeNode *p2 = p->firstChild->rightBrother;
+					char *tagname = doTag(p2);
+					structTableElement *str = searchStruct(tagname);
+					if (str == NULL) {
+						printf("Error type 17 at line %d: struct tag %s undefined\n", p->line, tagname);
+						return NULL;
+					} else {	//查找到，就将表中的type返回
+						return str->type;
+					}
+					break;
+				}
 	}
 }
 
@@ -209,7 +228,7 @@ varElement* doVarDec(TreeNode *p) {
 			varElement *elem = (varElement *)malloc(sizeof(struct varElement));
 			//printf("p1->value.idValue:%s\n", p1->value.idValue);
 			elem->name = (char *)malloc(sizeof(char*)*(strlen((p1->value).idValue)+1));
-			elem->layer_next = NULL;
+			elem->next = NULL;
 			strcpy(elem->name, p1->value.idValue);
 			return elem;
 			break;
@@ -287,7 +306,7 @@ void doCompSt(TreeNode *p) {
 	into_a_layer();
 	TreeNode *p2 = p->firstChild->rightBrother;
 	TreeNode *p3 = p2->rightBrother;
-	doDefList(p2);
+	doDefList(p2, 0);
 	doStmtList(p3);
 	out_of_a_layer();
 }
@@ -371,15 +390,15 @@ void doStmt(TreeNode *p) {
 	}
 }
 
-void doDefList(TreeNode *p) {
+varElement* doDefList(TreeNode *p, int ifStruct) {
 	//printf("doDefList\n");
 	//printf("TreeNode->state:%s\n", p->state);
 	switch (p->productionRule) {
 		case 1:{
 			TreeNode *p1 = p->firstChild;
 			TreeNode *p2 = p1->rightBrother;
-			doDef(p1);
-			doDefList(p2);
+			doDef(p1, ifStruct);
+			doDefList(p2, ifStruct);
 			break;
 			   }
 		case 2:
@@ -387,7 +406,7 @@ void doDefList(TreeNode *p) {
 	}
 }
 
-void doDef(TreeNode *p) {
+varElement* doDef(TreeNode *p, int ifStruct) {
 	//printf("doDef\n");
 	//printf("TreeNode->state:%s\n", p->state);
 	//将doDecList()返回的变量链表赋为doSpecifier()返回的Type,插入变量表
@@ -405,12 +424,12 @@ void doDef(TreeNode *p) {
 		//type不为空，说明声明的同时初始化，需要判断类型是否匹配
 		//printf("here\n");
 		if(!type_equal(type, elem->type)) {
-			printf("Error type 3 at line %d:'=' type mismatch\n", p->line);
+			printf("Error type 7 at line %d:'=' type mismatch\n", p->line);
 		}
 		else {
 			while(elem != NULL) {
 				elem->type = type;
-				elemn = elem->layer_next;
+				elemn = elem->next;
 				insert(elem);
 				elem = elemn;
 			}
@@ -418,8 +437,8 @@ void doDef(TreeNode *p) {
 	}
 	else{
 		while (elem != NULL) {
-			elem->type = type;	//相当不确定这句指针操作的正确性
-			elemn = elem->layer_next;
+			elem->type = type;
+			elemn = elem->next;
 			insert(elem);
 			elem = elemn;
 		}
@@ -443,7 +462,7 @@ varElement* doDecList(TreeNode *p) {
 			TreeNode *p3 = p1->rightBrother->rightBrother;
 			varElement *elem1 = doDec(p1);
 			varElement *elem2 = doDecList(p3);
-			elem1->layer_next = elem2;
+			elem1->next = elem2;
 			return elem1;
 			break;
 			   }
@@ -688,7 +707,7 @@ Type doExp(TreeNode *p) {
 					}
 			case 15:{Type type = (Type)malloc(sizeof(struct Type_));
 					Type t = doExp(tempNode);
-					FieldList field = t->u.structure;
+					varElement *field = t->u.var;
 					if(t != NULL) {
 						if(t->kind != STRUCTURE) {
 							printf("Error type 13 at line %d:'.'before %s unexpected\n", p->line, tempNode->value.idValue);
@@ -699,7 +718,7 @@ Type doExp(TreeNode *p) {
 									type = field->type;
 									return type;
 								}
-								field = field->tail;
+								field = field->next;
 							}
 							printf("Error type 14 at line %d:struct item %s undefined\n", p->line, tempNode->rightBrother->rightBrother->value.idValue);
 							//结构体成员未定义

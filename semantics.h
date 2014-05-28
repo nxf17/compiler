@@ -18,8 +18,8 @@ extern argElement* doParamDec(TreeNode *p);
 extern void doCompSt(TreeNode *p);
 extern void doStmtList(TreeNode *p);
 extern void doStmt(TreeNode *p);
-extern void doDefList(TreeNode *p);
-extern void doDef(TreeNode *p);
+extern varElement* doDefList(TreeNode *p, int ifStruct);	//ifStruct这个参数表示是否在处理struct的成员
+extern varElement* doDef(TreeNode *p, int ifStruct);
 extern varElement* doDecList(TreeNode *p);
 extern varElement* doDec(TreeNode *p);
 extern Type doExp(TreeNode *p);
