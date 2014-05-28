@@ -1,6 +1,7 @@
 #ifndef SYMBOLTABLE_H
 #define SYMBOLTABLE_H
 
+#define _GNU_SOURCE 
 #include <stdio.h>
 #include <stdlib.h>
 #include "tree.h"
@@ -15,7 +16,6 @@ typedef struct varElement varElement;
 typedef struct structTableElement structTableElement;
 typedef struct funcTableElement funcTableElement;
 typedef struct argElement argElement;
-//目前考虑把函数和变量放在两张表里
 
 static varElement* hashTable[HASH_SLOT];	//hash表项
 static varElement* layerStack[LAYER_DEPTH];	//控制每层的栈
@@ -56,10 +56,10 @@ struct varElement {
 };
 
 /* 结构体变量表项 */
-struct structTableELement {	
-	char *tagName;	//结构体的标签名
+struct structTableElement {	
+	char *name;	//结构体的tag标签名
 	Type type;
-	struct structTableElement *next;
+	structTableElement *next;
 };
 
 /* 函数表项 */
@@ -72,7 +72,7 @@ struct funcTableElement {
 
 /* 参数项 */
 struct argElement {
-	char name;	//参数名
+	char *name;	//参数名
 	Type type;	//参数类型
 	argElement *next;
 };
@@ -85,7 +85,12 @@ varElement* search(char *);	//搜索一个变量在此层的定义
 void into_a_layer();	//进入一层
 void out_of_a_layer();	//从一层中出来
 
+void insertStruct(structTableElement *);
+structTableElement* searchStruct(char *);
+
 void insertFunc(funcTableElement *);	//向函数表插入一个函数项
 funcTableElement* searchFunc(char *);	//在函数表查询函数
+
+
 
 #endif

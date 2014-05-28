@@ -1,4 +1,6 @@
 #include<stdio.h>
+#include "symboltable.h"
+
 extern FILE* yyin;
 extern yylineno;
 

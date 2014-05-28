@@ -148,30 +148,53 @@ Type doSpecifier(TreeNode *p) {
 	return type;
 } 
 
-void doStructSpecifier(TreeNode *p) {	//待完成
+Type doStructSpecifier(TreeNode *p) {	//待完成
 	//printf("doStructSpecifier\n");
 	//printf("TreeNode->state:%s\n", p->state);
 	switch (p->productionRule) {
-		case 1:
-			break;
+		case 1: {
+					TreeNode *p2 = p->firstChild->rightBrother;
+					TreeNode *p4 = p2->rightBrother->rightBrother;
+					char *tagname = doOptTag(p2);
+					if (tagname != NULL) {
+						if (searchStruct(tagname) != NULL || searchAll(tagname) != NULL) {
+							printf("Error type 16 at line %d: struct name is same as other struct name or variable name\n", p->line);					
+							return NULL;
+						}
+						//structTableElement
+						//doStructDefList()
+					}
+					
+					break;
+				}
 		case 2:
 			break;
 	}
 }
 
-void doOptTag(TreeNode *p) {	//待完成
+char* doOptTag(TreeNode *p) {	//返回一个含名字的字符串
 	//printf("doOptTag\n");
 	//printf("TreeNode->state:%s\n", p->state);
 	switch (p->productionRule) {
-		case 1:
+		case 1: {
+			TreeNode *p1 = p->firstChild;
+			char *id = (char *)malloc(sizeof(char*)*(strlen((p1->value).idValue)+1));
+			strcpy(id, p1->value.idValue);
+			return id;
 			break;
-		case 2:
+			}
+		case 2: {
+			return NULL;
 			break;
+			}
 	}
 }
 
-void doTag(TreeNode *p) {	//待完成
-	//printf("doTag\n");
+char* doTag(TreeNode *p) {
+	TreeNode *p1 = p->firstChild;
+	char *id = (char *)malloc(sizeof(char*)*(strlen((p1->value).idValue)+1));
+	strcpy(id, p1->value.idValue);
+	return id;
 }
 
 varElement* doVarDec(TreeNode *p) {

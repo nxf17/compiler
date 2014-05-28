@@ -1,5 +1,3 @@
-//to do: 符号表设计
-
 #include "symboltable.h"
 
 
@@ -110,6 +108,28 @@ void out_of_a_layer() {
 	layer--;
 }
 
+// ！！为什么加了这两个函数就报错了我给跪了难道不是和下面两个一样嘛...wtf
+//向结构体表插入一个结构体项
+void insertStruct(structTableElement *struc) {
+	printf("in insertStruct %s\n", struc->name);
+	struc->next = structTableHeader;
+	structTableHeader = struc;
+}	
+
+//查询一个结构体
+structTableElement* searchStruct(char * strname) {
+	printf("in searchStruct %s\n", strname);
+	structTableElement *q = structTableHeader;
+	//if (p == NULL) printf("null\n");
+	while (q != NULL) {
+		//printf("   now %s\n", p->name);
+		if (strcmp(q->name, strname)==0)
+			return q;
+		q = q->next;
+	}
+	return NULL;
+}
+
 //向函数表插入一个函数项
 void insertFunc(funcTableElement *func) {
 	printf("in insertFunc %s\n", func->name);
@@ -130,5 +150,6 @@ funcTableElement* searchFunc(char * funcname) {
 	}
 	return NULL;
 }
+
 
 
