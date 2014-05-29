@@ -7,29 +7,17 @@
 #include "symboltable.h"
 #include "semantics.h"
 
-extern bool type_equal(Type x, Type y);
-//都先定义成void了，之后肯定要改几个的返回类型
-/*extern void doProgram(TreeNode *p);
-extern void doExtDefList(TreeNode *p);
-extern void doExtDef(TreeNode *p);
-extern varElement* doExtDecList(TreeNode *p);
-extern Type doSpecifier(TreeNode *p);
-extern void doStructSpecifier(TreeNode *p);
-extern void doOptTag(TreeNode *p);
-extern void doTag(TreeNode *p);
-extern varElement* doVarDec(TreeNode *p);
-extern void doFunDec(TreeNode *p);
-extern void doVarList(TreeNode *p);
-extern void doParamDec(TreeNode *p);
-extern void doCompSt(TreeNode *p);
-extern void doStmtList(TreeNode *p);
-extern void doStmt(TreeNode *p);
-extern void doDefList(TreeNode *p);
-extern void doDef(TreeNode *p);
-extern varElement* doDecList(TreeNode *p);
-extern varElement* doDec(TreeNode *p);
-extern Type doExp(TreeNode *p);*/
+bool type_equal(Type x, Type y) { //判断类型是否匹配
+	//待完善，之后要扩充成支持所有类型
+	if(x->kind == BASIC && y->kind == BASIC) {
+		if(x->u.basic == y->u.basic) {
+			return true;
+		}
+	}//int或float类型匹配
+	return false;
+}
 
+static int loopNum = 0;	//用于记录循环在第几层
 
 void doProgram(TreeNode *p) {
 	//printf("---doProgram---\n");
@@ -89,7 +77,7 @@ void doExtDef(TreeNode *p) {
 			}
 			break;
 			   }
-		case 2:	{//待完成，用于只定义结构体的tag
+		case 2:	{
 			TreeNode *p1 = p->firstChild;
 			doSpecifier(p1);
 			break;
@@ -379,10 +367,12 @@ void doStmt(TreeNode *p) {
 			doCompSt(p1);
 			break;
 			   }
-		case 3:	{//这块之后要做函数返回类型检查
+		case 3:	{
 			TreeNode *p2 = p->firstChild->rightBrother;
-			//Type type = doExp(p2);
-			//if ()
+			Type type = doExp(p2);
+			if (!type_equal(type, funcTableHeader->type)) {	//直接和函数表中第一项比较，一定是最近的函数
+				printf("Error 8 at line %d: function return unexpected type/n", p->line);
+			}
 			break;
 				}
 		case 4:	{
@@ -406,24 +396,34 @@ void doStmt(TreeNode *p) {
 		case 6:{
 			TreeNode *p3 = p->firstChild->rightBrother->rightBrother;
 			TreeNode *p5 = p3->rightBrother->rightBrother;
+			loopNum++;
 			doExp(p3);
 			doStmt(p5);
+			loopNum--;
 			break;
 			   }
-		case 7:
+		case 7: {
+			if (loopNum == 0)
+				printf("Error 18 at line %d: use 'break' out of a loop\n", p->line);
 			break;
-		case 8:
+			}
+		case 8: {
+			if (loopNum == 0)
+				printf("Error 19 at line %d: use 'continue' out of a loop\n", p->line);
 			break;
+			}
 		case 9:{
 			//the for loop,待完善，应该是中间那个要做个type检查。
 			TreeNode *p3 = p->firstChild->rightBrother->rightBrother;
 			TreeNode *p5 = p3->rightBrother->rightBrother;
 			TreeNode *p7 = p5->rightBrother->rightBrother;
 			TreeNode *p9 = p7->rightBrother->rightBrother;
+			loopNum++;
 			doOptExp(p3);
 			doExp(p5);
 			doOptExp(p7);
 			doStmt(p9);
+			loopNum--;
 			   }
 	}
 }
@@ -552,16 +552,6 @@ varElement* doDec(TreeNode *p) {
 	}
 	return NULL;
 }
-
-bool type_equal(Type x, Type y) {
-	//待完善，之后要扩充成支持所有类型
-	if(x->kind == BASIC && y->kind == BASIC) {
-		if(x->u.basic == y->u.basic) {
-			return true;
-		}
-	}//int或float类型匹配
-	return false;
-}//判断类型是否匹配
 
 Type doOptExp(TreeNode *p) {
 	switch(p->productionRule) {
@@ -720,14 +710,18 @@ Type doExp(TreeNode *p) {
 				
 			case 12:{funcTableElement *func = searchFunc(tempNode->value.idValue);
 					if(func == NULL) {
-						printf("Error type 4 at line %d:undefined function %s\n", p->line, tempNode->value.idValue);
+						varElement *var = searchAll(tempNode->value.idValue);
+						if (var != NULL) {
+							printf("Error type 11 at line %d: normal variable %s uses '()'\n", p->line, tempNode->value.idValue);
+						} else
+							printf("Error type 4 at line %d: undefined function %s\n", p->line, tempNode->value.idValue);
 						return NULL;
 					}
 					TreeNode *argNode = tempNode->rightBrother->rightBrother;
 					argElement *args = doArgs(argNode);
                                         //if (args == NULL) printf("doArgs returns null!\n");
 					if (compareArgs(func->argListHeader, args) == 0) {	//参数匹配有问题
-						printf("Error type 9 at line %d:function var list not matched %s\n", p->line, tempNode->value.idValue);
+						printf("Error type 9 at line %d: function var list not matched %s\n", p->line, tempNode->value.idValue);
 						return func->type;
 					}
 					break;
@@ -735,7 +729,11 @@ Type doExp(TreeNode *p) {
 				}
 			case 13:{funcTableElement *func = searchFunc(tempNode->value.idValue);
 					if(func == NULL) {
-						printf("Error type 4 at line %d:undefined function %s\n", p->line, tempNode->value.idValue);
+						varElement *var = searchAll(tempNode->value.idValue);
+						if (var != NULL) {
+							printf("Error type 11 at line %d: normal variable %s uses '()'\n", p->line, tempNode->value.idValue);
+						} else
+							printf("Error type 4 at line %d:undefined function %s\n", p->line, tempNode->value.idValue);
 						return NULL;
 					}
 					else if (func->argListHeader != NULL) {	//函数定义中有参数而调用没有
@@ -751,7 +749,7 @@ Type doExp(TreeNode *p) {
 					Type t2 = doExp(temp2Node);
 					if(tempNode != NULL && temp2Node != NULL) {
 						if(t1->kind != ARRAY)
-							printf("Error type 10 at line %d:'[]' unexcepted\n", p->line);
+							printf("Error type 10 at line %d: normal variable uses '[]'\n", p->line);
 						else if(t2->u.basic != 0)
 							printf("Error type 12 at line %d:int required\n", p->line);
 						else {
@@ -763,21 +761,22 @@ Type doExp(TreeNode *p) {
 					//Exp LB Exp RB
 					}
 			case 15:{Type type = (Type)malloc(sizeof(struct Type_));
+					TreeNode *p3 = tempNode->rightBrother->rightBrother;
 					Type t = doExp(tempNode);
-					varElement *field = t->u.var;
 					if(t != NULL) {
 						if(t->kind != STRUCTURE) {
-							printf("Error type 13 at line %d:'.'before %s unexpected\n", p->line, tempNode->value.idValue);
+							printf("Error type 13 at line %d: %s is not a structure variable", p->line, tempNode->value.idValue);
 						}
 						else {
+							varElement *field = t->u.var;
 							while(field != NULL) {
-								if(strcmp(field->name, tempNode->rightBrother->rightBrother->value.idValue)) {
+								if(strcmp(field->name, p3->value.idValue)) {
 									type = field->type;
 									return type;
 								}
 								field = field->next;
 							}
-							printf("Error type 14 at line %d:struct item %s undefined\n", p->line, tempNode->rightBrother->rightBrother->value.idValue);
+							printf("Error type 14 at line %d:struct member %s undefined\n", p->line, tempNode->rightBrother->rightBrother->value.idValue);
 							//结构体成员未定义
 						}
 					}
