@@ -73,14 +73,19 @@ void doExtDef(TreeNode *p) {
 			while (elem != NULL) {
 		//		printf("here!\n");
 				Type t = elem->type;
-				while (t->kind == ARRAY) {	//如果是数组要找到最底部的type节点赋为Specifier传回的Type
-					t = t->u.array.elem;				
+				if (t->kind != BASIC) {
+					while (t->kind == ARRAY || t->u.array.elem->kind != BASIC) {	//如果是数组要找到最底部的type节点赋为Specifier传回的Type
+						t = t->u.array.elem;				
+					}
+					free(t->u.array.elem);
+					t->u.array.elem = type;	//在倒数第二个节点处改变Type
+				} else {
+					free(elem->type);
+					elem->type = type;	
+					elemn = elem->next;
+					insert(elem);
+					elem = elemn;
 				}
-				free(t);	//原本的Type_已没有作用，释放掉
-				t = type;	
-				elemn = elem->next;
-				insert(elem);
-				elem = elemn;
 			}
 			break;
 			   }
@@ -452,27 +457,47 @@ varElement* doDef(TreeNode *p, int ifStruct) {
 	//printf("type:%d\n", type->u.basic);
 //	printf("elem:%d\n", elem->type->u.basic);
 
-	if(elem->type != NULL) {
-		//type不为空，说明声明的同时初始化，需要判断类型是否匹配
+	if(elem->initType != NULL) {
+		//initType不为空，说明声明的同时初始化，需要判断类型是否匹配
 		//printf("here\n");
-		if(!type_equal(type, elem->type)) {
+		if(!type_equal(type, elem->initType)) {
 			printf("Error type 7 at line %d:'=' type mismatch\n", p->line);
 		}
 		else {
 			while(elem != NULL) {
-				elem->type = type;
-				elemn = elem->next;
-				insert(elem);
-				elem = elemn;
+				Type t = elem->type;
+				if (t->kind != BASIC) {
+					while (t->kind == ARRAY || t->u.array.elem->kind != BASIC) {	//如果是数组要找到最底部的type节点赋为Specifier传回的Type
+						t = t->u.array.elem;				
+					}
+					free(t->u.array.elem);
+					t->u.array.elem = type;	//在倒数第二个节点处改变Type
+				} else {
+					free(elem->type);
+					elem->type = type;	
+					elemn = elem->next;
+					insert(elem);
+					elem = elemn;
+				}
 			}
 		}
 	}
 	else{
 		while (elem != NULL) {
-			elem->type = type;
-			elemn = elem->next;
-			insert(elem);
-			elem = elemn;
+			Type t = elem->type;
+			if (t->kind != BASIC) {
+				while (t->kind == ARRAY || t->u.array.elem->kind != BASIC) {	//如果是数组要找到最底部的type节点赋为Specifier传回的Type
+					t = t->u.array.elem;				
+				}
+				free(t->u.array.elem);
+				t->u.array.elem = type;	//在倒数第二个节点处改变Type
+			} else {
+				free(elem->type);
+				elem->type = type;	
+				elemn = elem->next;
+				insert(elem);
+				elem = elemn;
+			}
 		}
 	}
 }
@@ -511,7 +536,7 @@ varElement* doDec(TreeNode *p) {
 			return elem1; 
 			break;
 			   }
-		case 2:	{//先没有处理初始化
+		case 2:	{
 			TreeNode *p1 = p->firstChild;
 			TreeNode *p3 = p1->rightBrother->rightBrother;
 			//printf("p1->state:%s\n", p1->state);
@@ -519,8 +544,8 @@ varElement* doDec(TreeNode *p) {
 			varElement *elem1 = doVarDec(p1);//产生一个结点
 			//判断初始化时类型是否匹配
 			Type t3 = doExp(p3);
-			elem1->type = t3;
-			//将初始化时等号后面的变量类型赋给这个新结点
+			elem1->initType = t3;
+			//将初始化时等号后面的变量类型赋给这个结点的initType
 			return elem1;
 			break;
 				}

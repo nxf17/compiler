@@ -50,6 +50,7 @@ struct FieldList_ {
 struct varElement {	
 	char *name;	//变量名
 	Type type;	//变量类型
+	Type initType; 	//初始化的类型
 	int layer_no;	//在哪一层
 	int slot_no;	//在哪个槽
 	struct varElement *next;	//在函数表表示同一层的下一个，在结构体中就是下一个成员
