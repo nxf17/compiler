@@ -381,7 +381,8 @@ void doStmt(TreeNode *p) {
 			   }
 		case 3:	{//这块之后要做函数返回类型检查
 			TreeNode *p2 = p->firstChild->rightBrother;
-			doExp(p2);
+			//Type type = doExp(p2);
+			//if ()
 			break;
 				}
 		case 4:	{
@@ -434,12 +435,21 @@ varElement* doDefList(TreeNode *p, int ifStruct) {
 		case 1:{
 			TreeNode *p1 = p->firstChild;
 			TreeNode *p2 = p1->rightBrother;
-			doDef(p1, ifStruct);
-			doDefList(p2, ifStruct);
+			varElement *ele1 = doDef(p1, ifStruct);
+			varElement *ele2 = doDefList(p2, ifStruct);
+			if (ifStruct == 1) { 	//是结构体的成员处理
+				while (ele1->next != NULL) {	//找到这个Def定义出的的最后一个varElement
+					ele1 = ele1->next;				
+				}
+				ele1->next = ele2;	//和DefList的varElement链串联起来，返回
+				return ele1;
+			}
 			break;
-			   }
-		case 2:
+		}
+		case 2:{
+			return NULL;
 			break;
+		}
 	}
 }
 
@@ -452,6 +462,7 @@ varElement* doDef(TreeNode *p, int ifStruct) {
 	Type type = doSpecifier(p1);
 	//printf("doDef begin doDecList\n");
 	varElement *elem = doDecList(p2);
+	varElement *elemHead = elem;
 	varElement *elemn = NULL;
 	//判断初始化时类型是否匹配
 	//printf("type:%d\n", type->u.basic);
@@ -460,46 +471,35 @@ varElement* doDef(TreeNode *p, int ifStruct) {
 	if(elem->initType != NULL) {
 		//initType不为空，说明声明的同时初始化，需要判断类型是否匹配
 		//printf("here\n");
-		if(!type_equal(type, elem->initType)) {
+		if (ifStruct == 1) {
+			printf("Error type 15 at line %d: struct member initialization is denied\n", p->line);
+		} 
+		else if(!type_equal(type, elem->initType)) {
 			printf("Error type 7 at line %d:'=' type mismatch\n", p->line);
 		}
-		else {
-			while(elem != NULL) {
-				Type t = elem->type;
-				if (t->kind != BASIC) {
-					while (t->kind == ARRAY || t->u.array.elem->kind != BASIC) {	//如果是数组要找到最底部的type节点赋为Specifier传回的Type
-						t = t->u.array.elem;				
-					}
-					free(t->u.array.elem);
-					t->u.array.elem = type;	//在倒数第二个节点处改变Type
-				} else {
-					free(elem->type);
-					elem->type = type;	
-					elemn = elem->next;
-					insert(elem);
-					elem = elemn;
-				}
+	}
+	
+	while(elem != NULL) {
+		Type t = elem->type;
+		if (t->kind != BASIC) {
+			while (t->kind == ARRAY || t->u.array.elem->kind != BASIC) {	//如果是数组要找到最底部的type节点赋为Specifier传回的Type
+				t = t->u.array.elem;				
 			}
+			free(t->u.array.elem);
+			t->u.array.elem = type;	//在倒数第二个节点处改变Type
+		} else {
+			free(elem->type);
+			elem->type = type;	
+		}
+		if (ifStruct != 1) {	//普通变量，插入变量表
+			elemn = elem->next;
+			insert(elem);
+			elem = elemn;
+		} else {	//结构体变量，保持链表结构
+			elem = elem->next;
 		}
 	}
-	else{
-		while (elem != NULL) {
-			Type t = elem->type;
-			if (t->kind != BASIC) {
-				while (t->kind == ARRAY || t->u.array.elem->kind != BASIC) {	//如果是数组要找到最底部的type节点赋为Specifier传回的Type
-					t = t->u.array.elem;				
-				}
-				free(t->u.array.elem);
-				t->u.array.elem = type;	//在倒数第二个节点处改变Type
-			} else {
-				free(elem->type);
-				elem->type = type;	
-				elemn = elem->next;
-				insert(elem);
-				elem = elemn;
-			}
-		}
-	}
+	return elemHead;
 }
 
 varElement* doDecList(TreeNode *p) {
@@ -535,7 +535,7 @@ varElement* doDec(TreeNode *p) {
 			varElement *elem1 = doVarDec(p1);
 			return elem1; 
 			break;
-			   }
+		}
 		case 2:	{
 			TreeNode *p1 = p->firstChild;
 			TreeNode *p3 = p1->rightBrother->rightBrother;
@@ -548,7 +548,7 @@ varElement* doDec(TreeNode *p) {
 			//将初始化时等号后面的变量类型赋给这个结点的initType
 			return elem1;
 			break;
-				}
+		}
 	}
 	return NULL;
 }
