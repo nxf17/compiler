@@ -72,7 +72,12 @@ void doExtDef(TreeNode *p) {
 			varElement *elemn = NULL;
 			while (elem != NULL) {
 		//		printf("here!\n");
-				elem->type = type;	
+				Type t = elem->type;
+				while (t->kind == ARRAY) {	//如果是数组要找到最底部的type节点赋为Specifier传回的Type
+					t = t->u.array.elem;				
+				}
+				free(t);	//原本的Type_已没有作用，释放掉
+				t = type;	
 				elemn = elem->next;
 				insert(elem);
 				elem = elemn;
@@ -230,13 +235,40 @@ varElement* doVarDec(TreeNode *p) {
 			elem->name = (char *)malloc(sizeof(char*)*(strlen((p1->value).idValue)+1));
 			elem->next = NULL;
 			strcpy(elem->name, p1->value.idValue);
+			Type type = (Type)malloc(sizeof(struct Type_));
+			type->kind = BASIC;
+			elem->type = type;
 			return elem;
 			break;
 			   }
-		case 2:
-			//数组声明，待处理
-			return NULL;
+		case 2: {
+			//数组声明
+			TreeNode *p1 = p->firstChild;
+			TreeNode *p3 = p1->rightBrother->rightBrother;
+			varElement *elem = (varElement *)malloc(sizeof(struct varElement));
+			Type type = (Type)malloc(sizeof(struct Type_));
+			type->kind = BASIC;	//最下端的节点，BASIC标记
+			Type type2 = (Type)malloc(sizeof(struct Type_));
+			type2->kind = ARRAY;
+			type2->u.array.size = p3->value.intValue;
+			type2->u.array.elem = type;
+			while (p1->productionRule != 1) {	//如果仍然是产生VarDec LB INT RB递推处理
+				type = type2;
+				p1 = p1->firstChild;
+				p3 = p1->rightBrother->rightBrother;
+				type2 = (Type)malloc(sizeof(struct Type_));
+				type2->kind = ARRAY;
+				type2->u.array.size = p3->value.intValue;
+				type2->u.array.elem = type;
+			}
+			p1 = p1->firstChild;	//指向ID点
+			elem->name = (char *)malloc(sizeof(char *)*(strlen(p1->value.idValue)+1));
+			elem->next = NULL;
+			strcpy(elem->name, p1->value.idValue);
+			elem->type = type2;
+			return elem;
 			break;
+				}
 	}
 }
 

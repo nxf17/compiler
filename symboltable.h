@@ -35,7 +35,7 @@ struct Type_ {
 			Type elem;	//一个指针，串起数组元素
 		}array;
 		//FieldList structure;	//结构体类型信息是一个链表
-		varElement *var; 
+		varElement *var; 	//用于结构体
 	}u;
 };
 
