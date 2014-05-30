@@ -128,6 +128,7 @@ structTableElement* searchStruct(char * strname) {
 			return q;
 		q = q->next;
 	}
+	printf("return NULL in searchStruct\n");
 	return NULL;
 }
 

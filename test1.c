@@ -7,5 +7,5 @@ int main(){
 	while (1) {
 		break;		
 	}
-	return 0;
+	return 1.5;	//返回类型不统一
 }
