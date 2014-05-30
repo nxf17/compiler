@@ -19,8 +19,8 @@ bool type_equal(Type x, Type y) { //判断类型是否匹配
 			return true;
 	}
 	else if (x->kind == STRUCTURE && y->kind == STRUCTURE) {
-		varElement *p = x->var;
-		varElement *q = x->var;
+		varElement *p = x->u.var;
+		varElement *q = x->u.var;
 		while (p != NULL) {
 			if (q == NULL)
 				return false;
