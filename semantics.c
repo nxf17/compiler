@@ -13,7 +13,28 @@ bool type_equal(Type x, Type y) { //判断类型是否匹配
 		if(x->u.basic == y->u.basic) {
 			return true;
 		}
-	}//int或float类型匹配
+	} 
+	else if (x->kind == ARRAY && y->kind == ARRAY) {
+		if (type_equal(x->u.array.elem, y->u.array.elem))
+			return true;
+	}
+	else if (x->kind == STRUCTURE && y->kind == STRUCTURE) {
+		varElement *p = x->var;
+		varElement *q = x->var;
+		while (p != NULL) {
+			if (q == NULL)
+				return false;
+			else if (strcmp(p->name, q->name)!=0)
+				return false;
+			else if (!type_equal(p->type, q->type))
+				return false;
+			else
+				p = p->next;
+				q = q->next;
+		}
+		if (q != NULL) return false;
+		return true;
+	}
 	return false;
 }
 
