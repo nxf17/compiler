@@ -3,6 +3,7 @@ float x;
 struct man {
 	int age  = 22;	//初始化了域
 	float height;
+	int grade;
 };
 
 int main() {

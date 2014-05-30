@@ -8,7 +8,6 @@
 #include "semantics.h"
 
 bool type_equal(Type x, Type y) { //判断类型是否匹配
-	//待完善，之后要扩充成支持所有类型
 	if(x->kind == BASIC && y->kind == BASIC) {
 		if(x->u.basic == y->u.basic) {
 			return true;
@@ -36,6 +35,34 @@ bool type_equal(Type x, Type y) { //判断类型是否匹配
 		return true;
 	}
 	return false;
+}
+
+
+void showStructMember(Type type) {
+	printf("--show struct member--\n");
+	if (type->kind != STRUCTURE) {
+		printf("this type is not a struct!\n");
+		return;	
+	}
+	varElement *mem = type->u.var;
+	while (mem != NULL) {
+		if (mem->type->kind == BASIC) {
+			if (mem->type->u.basic == 0) printf("int ");
+			else printf("float ");		
+		}
+		else if (mem->type->kind == ARRAY)
+			printf("array ");
+		else 
+			printf("struct ");
+		printf("%s\n", mem->name);
+		mem = mem->next;
+	}
+	printf("--end--\n");	 
+}
+
+void showBasicType(Type type) {
+	if (type->u.basic == 0) printf("int\n");
+	else printf("float\n");
 }
 
 static int loopNum = 0;	//用于记录循环在第几层
@@ -158,8 +185,8 @@ Type doSpecifier(TreeNode *p) {
 			   }
 		case 2:{
 			TreeNode *p1 = p->firstChild;
-			doStructSpecifier(p1);
-			type->kind = STRUCTURE;
+			type = doStructSpecifier(p1);
+			return type;
 			break;
 			   }
 	}
@@ -191,6 +218,7 @@ Type doStructSpecifier(TreeNode *p) {	//待完成
 						Type temptype = (Type)malloc(sizeof(struct Type_));
 						temptype->kind = STRUCTURE;
 						temptype->u.var = doDefList(p4, 1);
+						showStructMember(temptype);
 						return temptype;
 					}
 					break;
@@ -204,6 +232,7 @@ Type doStructSpecifier(TreeNode *p) {	//待完成
 						printf("Error type 17 at line %d: struct tag %s undefined\n", p->line, tagname);
 						return NULL;
 					} else {	//查找到，就将表中的type返回
+						showStructMember(str->type);
 						return str->type;
 					}
 					break;
@@ -517,7 +546,8 @@ varElement* doDef(TreeNode *p, int ifStruct) {
 			t->u.array.elem = type;	//在倒数第二个节点处改变Type
 		} else {
 			//free(elem->type);
-			elem->type = type;	
+			elem->type = type;
+			//printf("type in doDef %d\n", type->u.basic);	
 		}
 		if (ifStruct != 1) {	//普通变量，插入变量表
 			elemn = elem->next;
@@ -603,13 +633,17 @@ Type doExp(TreeNode *p) {
 		TreeNode *tempNode = p->firstChild;//产生式右边第一个符号
 		switch (p->productionRule) {
 			case 1:{TreeNode *temp2Node = tempNode->rightBrother->rightBrother;
-				   Type type = (Type)malloc(sizeof(struct Type_));
+				   //Type type = (Type)malloc(sizeof(struct Type_));
 				   Type t1 = doExp(tempNode);
 				   Type t2 = doExp(temp2Node);
+				   if (tempNode->productionRule > 16 && tempNode->productionRule < 14) {	//不符合唯一的三个能当右值的产生式
+				   	printf("Error type 6 at line %d: left expression illegal for assign\n", p->line);
+				   }
 				   if(t1 != NULL && t2 != NULL) {
+					   showBasicType(t1);	
+					   showBasicType(t2);
 					   if(type_equal(t1, t2)) {
-						   type = t1;//？这里不是只赋了地址吗
-						   return type;//类型匹配
+						   return t1;//类型匹配
 					   }
 					   else if(!type_equal(t1, t2)) {
 						   printf("Error type 7 at line %d '=' type mismatch\n", p->line);//类型不匹配
@@ -789,7 +823,7 @@ Type doExp(TreeNode *p) {
 					break;
 					//Exp LB Exp RB
 					}
-			case 15:{Type type = (Type)malloc(sizeof(struct Type_));
+			case 15:{
 					TreeNode *p3 = tempNode->rightBrother->rightBrother;
 					Type t = doExp(tempNode);
 					if(t != NULL) {
@@ -797,11 +831,11 @@ Type doExp(TreeNode *p) {
 							printf("Error type 13 at line %d: error use of operator '.'\n", p->line);
 						}
 						else {
-							varElement *field = t->u.var;
+							showStructMember(t);
+;							varElement *field = t->u.var;
 							while(field != NULL) {
-								if(strcmp(field->name, p3->value.idValue)) {
-									type = field->type;
-									return type;
+								if(strcmp(field->name, p3->value.idValue) == 0) {
+									return field->type;
 								}
 								field = field->next;
 							}
