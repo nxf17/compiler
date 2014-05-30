@@ -1,5 +1,6 @@
 #include "symboltable.h"
 
+static int layer = 0;
 
 unsigned int hash_pjw(char *name) {
 	unsigned int val=0,i;
@@ -135,12 +136,15 @@ void insertFunc(funcTableElement *func) {
 	printf("in insertFunc %s\n", func->name);
 	func->next = funcTableHeader;
 	funcTableHeader = func;
+	if (funcTableHeader == NULL) printf("null in insertFunc\n");
 }	
 
 //查询一个函数
 funcTableElement* searchFunc(char * funcname) {
 	printf("in searchFunc %s\n", funcname);
 	funcTableElement *p = funcTableHeader;
+	//if (funcTableHeader == NULL) printf("null func\n");
+	//else printf("not null func\n");
 	//if (p == NULL) printf("null\n");
 	while (p != NULL) {
 		//printf("   now %s\n", p->name);

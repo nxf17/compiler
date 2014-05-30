@@ -17,13 +17,13 @@ typedef struct structTableElement structTableElement;
 typedef struct funcTableElement funcTableElement;
 typedef struct argElement argElement;
 
-static varElement* hashTable[HASH_SLOT];	//hash表项
-static varElement* layerStack[LAYER_DEPTH];	//控制每层的栈
-static int layer = 0;	//目前在第几层
+varElement* hashTable[HASH_SLOT];	//hash表项
+varElement* layerStack[LAYER_DEPTH];	//控制每层的栈
+//int layer = 0;	//目前在第几层
 
-static structTableElement *structTableHeader; 	//结构体表的表头
+structTableElement *structTableHeader; 	//结构体表的表头
 
-static funcTableElement *funcTableHeader;	//函数表的表头
+funcTableElement *funcTableHeader;	//函数表的表头
 
 /* 类型 */
 struct Type_ {

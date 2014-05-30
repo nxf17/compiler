@@ -41,14 +41,14 @@ bool type_equal(Type x, Type y) { //判断类型是否匹配
 static int loopNum = 0;	//用于记录循环在第几层
 
 void doProgram(TreeNode *p) {
-	//printf("---doProgram---\n");
+	printf("---doProgram---\n");
 	//printf("root->state:%s\n", p->state);
 	TreeNode *p1 = p->firstChild;	
 	doExtDefList(p1);
 }
 
 void doExtDefList(TreeNode *p) {
-	//printf("doExtDefList\n");
+	printf("doExtDefList\n");
 	//printf("TreeNode->state:%s\n", p->state);
 	//printf("TreeNode->productionRule: %d\n", p->productionRule);
 	switch (p->productionRule) {
@@ -65,7 +65,7 @@ void doExtDefList(TreeNode *p) {
 }
 
 void doExtDef(TreeNode *p) {
-	//printf("doExtDef\n");
+	printf("doExtDef\n");
 	//printf("TreeNode->state:%s\n", p->state);
 	//printf("TreeNode->productionRule: %d\n", p->productionRule);
 	switch (p->productionRule) {
@@ -116,7 +116,7 @@ void doExtDef(TreeNode *p) {
 }
 
 varElement* doExtDecList(TreeNode *p) {
-	//printf("doExtDecList\n");
+	printf("doExtDecList\n");
 	//printf("TreeNode->state:%s\n", p->state);
 	//这个函数会把同一语句中出现的变量串起来
 	switch (p->productionRule) {
@@ -139,7 +139,7 @@ varElement* doExtDecList(TreeNode *p) {
 }
 
 Type doSpecifier(TreeNode *p) {
-	//printf("doSpecifier\n");
+	printf("doSpecifier\n");
 	//printf("TreeNode->state:%s\n", p->state);
 	//printf("TreeNode->productionRule: %d\n", p->productionRule);
 	Type type = (Type)malloc(sizeof(struct Type_));
@@ -168,7 +168,7 @@ Type doSpecifier(TreeNode *p) {
 } 
 
 Type doStructSpecifier(TreeNode *p) {	//待完成
-	//printf("doStructSpecifier\n");
+	printf("doStructSpecifier\n");
 	//printf("TreeNode->state:%s\n", p->state);
 	switch (p->productionRule) {
 		case 1: {
@@ -211,7 +211,7 @@ Type doStructSpecifier(TreeNode *p) {	//待完成
 }
 
 char* doOptTag(TreeNode *p) {	//返回一个含名字的字符串
-	//printf("doOptTag\n");
+	printf("doOptTag\n");
 	//printf("TreeNode->state:%s\n", p->state);
 	switch (p->productionRule) {
 		case 1: {
@@ -236,7 +236,7 @@ char* doTag(TreeNode *p) {
 }
 
 varElement* doVarDec(TreeNode *p) {
-	//printf("doVarDec\n");
+	printf("doVarDec\n");
 	//printf("TreeNode->state:%s\n", p->state);
 	//printf("TreeNode->productionRule: %d\n", p->productionRule);
 	switch (p->productionRule) {
@@ -287,7 +287,7 @@ varElement* doVarDec(TreeNode *p) {
 }
 
 void doFunDec(Type type, TreeNode *p) {
-	//printf("doFunDec\n");
+	printf("doFunDec\n");
 	//printf("TreeNode->state:%s\n", p->state);
 	TreeNode *p1 = p->firstChild;
 	char * funcname = (char *)malloc(sizeof(char*)*(strlen((p1->value).idValue)+1));
@@ -305,6 +305,7 @@ void doFunDec(Type type, TreeNode *p) {
 			TreeNode *p3 = p1->rightBrother->rightBrother;
 			elem->argListHeader = doVarList(p3);
 			insertFunc(elem);
+			//if (funcTableHeader == NULL) printf("null in doFunDec");
 			break;
 			}
 		case 2: {
@@ -315,7 +316,7 @@ void doFunDec(Type type, TreeNode *p) {
 }
 
 argElement* doVarList(TreeNode *p) { //仍然用定义串联的方法返回参数列表
-	//printf("doVarList\n");
+	printf("doVarList\n");
 	//printf("TreeNode->state:%s\n", p->state);
 	switch (p->productionRule) {
 		case 1: {
@@ -336,8 +337,8 @@ argElement* doVarList(TreeNode *p) { //仍然用定义串联的方法返回参�
 	}
 }
 
-argElement* doParamDec(TreeNode *p) {	//这边有个参数为数组的处理，考虑是否好完成
-	//printf("doParamDec\n");
+argElement* doParamDec(TreeNode *p) {	//这	边有个参数为数组的处理，考虑是否好完成
+	printf("doParamDec\n");
 	TreeNode *p1 = p->firstChild;
 	TreeNode *p2 = p1->rightBrother;	
 	argElement *arg = (argElement *)malloc(sizeof(argElement));
@@ -347,7 +348,7 @@ argElement* doParamDec(TreeNode *p) {	//这边有个参数为数组的处理，�
 }
 
 void doCompSt(TreeNode *p) {
-	//printf("doCompSt\n");
+	printf("doCompSt\n");
 	//printf("TreeNode->state:%s\n", p->state);
 	into_a_layer();
 	TreeNode *p2 = p->firstChild->rightBrother;
@@ -358,7 +359,7 @@ void doCompSt(TreeNode *p) {
 }
 
 void doStmtList(TreeNode *p) {
-	//printf("doStmtList\n");
+	printf("doStmtList\n");
 	//printf("TreeNode->state:%s\n", p->state);
 	switch (p->productionRule) {
 		case 1:{
@@ -374,7 +375,7 @@ void doStmtList(TreeNode *p) {
 }
 
 void doStmt(TreeNode *p) {
-	//printf("doStmt\n");
+	printf("doStmt\n");
 	//printf("TreeNode->state:%s\n", p->state);
 	//printf("TreeNode->productionRule: %d\n", p->productionRule);
 	switch (p->productionRule) {
@@ -384,16 +385,18 @@ void doStmt(TreeNode *p) {
 			break;
 			   }
 		case 2:{
-			TreeNode *p1 = p->firstChild;
+			TreeNode *p1 =	 p->firstChild;
 			doCompSt(p1);
 			break;
 			   }
 		case 3:	{
+			printf("in return\n");
 			TreeNode *p2 = p->firstChild->rightBrother;
 			Type type = doExp(p2);
 			if (!type_equal(type, funcTableHeader->type)) {	//直接和函数表中第一项比较，一定是最近的函数
-				printf("Error 8 at line %d: function return unexpected type/n", p->line);
+				printf("Error 8 at line %d: function return unexpected type\n", p->line);
 			}
+			printf("out return\n");
 			break;
 				}
 		case 4:	{
@@ -450,7 +453,7 @@ void doStmt(TreeNode *p) {
 }
 
 varElement* doDefList(TreeNode *p, int ifStruct) {
-	//printf("doDefList\n");
+	printf("doDefList\n");
 	//printf("TreeNode->state:%s\n", p->state);
 	switch (p->productionRule) {
 		case 1:{
@@ -475,7 +478,7 @@ varElement* doDefList(TreeNode *p, int ifStruct) {
 }
 
 varElement* doDef(TreeNode *p, int ifStruct) {
-	//printf("doDef\n");
+	printf("doDef\n");
 	//printf("TreeNode->state:%s\n", p->state);
 	//将doDecList()返回的变量链表赋为doSpecifier()返回的Type,插入变量表
 	TreeNode *p1 = p->firstChild;
@@ -524,7 +527,7 @@ varElement* doDef(TreeNode *p, int ifStruct) {
 }
 
 varElement* doDecList(TreeNode *p) {
-	//printf("doDecList\n");
+	printf("doDecList\n");
 	//printf("TreeNode->state:%s\n", p->state);
 	//printf("TreeNode->productionRule: %d\n", p->productionRule);
 	//这个函数会把同一语句中出现的变量串起来
@@ -548,7 +551,7 @@ varElement* doDecList(TreeNode *p) {
 }
 
 varElement* doDec(TreeNode *p) {
-	//printf("doDec\n");
+	printf("doDec\n");
 	//printf("TreeNode->state:%s\n", p->state);
 	switch (p->productionRule) {
 		case 1:{
@@ -575,6 +578,7 @@ varElement* doDec(TreeNode *p) {
 }
 
 Type doOptExp(TreeNode *p) {
+	printf("doOptExp\n");
 	switch(p->productionRule) {
 		case 1: {
 			TreeNode *p1 = p->firstChild;
@@ -588,7 +592,7 @@ Type doOptExp(TreeNode *p) {
 }
 
 Type doExp(TreeNode *p) {
-	//printf("doExp\n");
+	printf("doExp\n");
 	//printf("TreeNode->state:%s\n", p->state);
 	//printf("TreeNode->productionRule: %d\n", p->productionRule);
 	if(strcmp(p->state, "Exp") == 0) {
@@ -835,7 +839,7 @@ Type doExp(TreeNode *p) {
 }
 
 argElement *doArgs(TreeNode *p) {
-	//printf("doArgs\n");
+	printf("doArgs\n");
 	//printf("TreeNode->state:%s\n", p->state);
 	switch (p->productionRule) {
 		case 1: {
