@@ -206,7 +206,7 @@ Type doStructSpecifier(TreeNode *p) {	//待完成
 							printf("Error type 16 at line %d: struct tag %s is same as other struct tag or variable name\n", p->line, tagname);					
 							return NULL;
 						}
-						printf("here1\n");
+						//printf("here1\n");
 						structTableElement *str = (structTableElement *)malloc(sizeof(structTableElement));
 						str->name = tagname;
 						str->type = (Type)malloc(sizeof(struct Type_));
@@ -298,6 +298,7 @@ varElement* doVarDec(TreeNode *p) {
 			type2->u.array.elem = type;
 			printf("here1\n");
 			while (p1->productionRule != 1) {	//如果仍然是产生VarDec LB INT RB递推处理
+				printf("in while\n");
 				type = type2;
 				p1 = p1->firstChild;
 				p3 = p1->rightBrother->rightBrother;
@@ -305,6 +306,7 @@ varElement* doVarDec(TreeNode *p) {
 				type2->kind = ARRAY;
 				type2->u.array.size = p3->value.intValue;
 				type2->u.array.elem = type;
+				printf("out while\n");
 			}
 			printf("here2\n");
 			p1 = p1->firstChild;	//指向ID点
@@ -312,7 +314,7 @@ varElement* doVarDec(TreeNode *p) {
 			elem->next = NULL;
 			strcpy(elem->name, p1->value.idValue);
 			elem->type = type2;
-			printf("here3\n");
+			printf("here3 %s get\n", elem->name);
 			return elem;
 			break;
 				}
@@ -535,15 +537,20 @@ varElement* doDef(TreeNode *p, int ifStruct) {
 			printf("Error type 7 at line %d:'=' type mismatch\n", p->line);
 		}
 	}
-	
+	//printf("z\n");
 	while(elem != NULL) {
+		//printf("z2\n");
 		Type t = elem->type;
 		if (t->kind != BASIC) {
-			while (t->kind == ARRAY || t->u.array.elem->kind != BASIC) {	//如果是数组要找到最底部的type节点赋为Specifier传回的Type
+			//printf("z3\n");
+			while (t->kind == ARRAY && t->u.array.elem->kind != BASIC) {	//如果是数组要找到最底部的type节点赋为Specifier传回的Type
+				printf("in loop\n");				
 				t = t->u.array.elem;				
 			}
+			//printf("z4\n");
 			//free(t->u.array.elem);
 			t->u.array.elem = type;	//在倒数第二个节点处改变Type
+			//printf("z5\n");
 		} else {
 			//free(elem->type);
 			elem->type = type;
@@ -557,6 +564,7 @@ varElement* doDef(TreeNode *p, int ifStruct) {
 			elem = elem->next;
 		}
 	}
+	printf("out of doDef\n");
 	return elemHead;
 }
 
@@ -586,11 +594,13 @@ varElement* doDecList(TreeNode *p) {
 
 varElement* doDec(TreeNode *p) {
 	printf("doDec\n");
-	//printf("TreeNode->state:%s\n", p->state);
+	printf("TreeNode->production rule: %d\n", p->productionRule);
 	switch (p->productionRule) {
 		case 1:{
 			TreeNode *p1 = p->firstChild;
+			//printf("before doDec1\n");
 			varElement *elem1 = doVarDec(p1);
+			//printf("after doDec1\n");
 			return elem1; 
 			break;
 		}
@@ -599,11 +609,12 @@ varElement* doDec(TreeNode *p) {
 			TreeNode *p3 = p1->rightBrother->rightBrother;
 			//printf("p1->state:%s\n", p1->state);
 			//printf("p3->state:%s\n", p3->state);
+			//printf("before doDec\n");
 			varElement *elem1 = doVarDec(p1);//产生一个结点
 			//判断初始化时类型是否匹配
 			Type t3 = doExp(p3);
 			elem1->initType = t3;
-			//将初始化时等号后面的变量类型赋给这个结点的initType
+			//将初始化时等号后面的变量类型赋给这个结点的initType;
 			return elem1;
 			break;
 		}
@@ -635,13 +646,13 @@ Type doExp(TreeNode *p) {
 			case 1:{TreeNode *temp2Node = tempNode->rightBrother->rightBrother;
 				   //Type type = (Type)malloc(sizeof(struct Type_));
 				   Type t1 = doExp(tempNode);
-				   Type t2 = doExp(temp2Node);
+				   Type t2 = doExp(temp2Node);	
 				   if (tempNode->productionRule > 16 && tempNode->productionRule < 14) {	//不符合唯一的三个能当右值的产生式
 				   	printf("Error type 6 at line %d: left expression illegal for assign\n", p->line);
 				   }
 				   if(t1 != NULL && t2 != NULL) {
-					   showBasicType(t1);	
-					   showBasicType(t2);
+					   //showBasicType(t1);	
+					   //showBasicType(t2);
 					   if(type_equal(t1, t2)) {
 						   return t1;//类型匹配
 					   }

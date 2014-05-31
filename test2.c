@@ -6,4 +6,5 @@ int main(){
 		int a, b = 4;
 		a = b;	
 	}
+	return 1.5;	//返回值不统一
 }

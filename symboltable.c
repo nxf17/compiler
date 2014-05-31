@@ -103,7 +103,7 @@ void out_of_a_layer() {
 		q = p->next;
 		int slotno = p->slot_no;
 		hashTable[slotno] = p->slot_next;
-		free(p);
+		//free(p);
 		p = q;
 	}
 	layer--;
