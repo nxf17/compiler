@@ -12,7 +12,6 @@ int main() {
 	int b = 20;
 	float f = 1.6;
 	a = 8;	//未定义的变量
-	x = a;
 	Pu.age = b;
 	Pu.height = x;
 	Pu.age = f;	//类型不匹配

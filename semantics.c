@@ -68,14 +68,14 @@ void showBasicType(Type type) {
 static int loopNum = 0;	//用于记录循环在第几层
 
 void doProgram(TreeNode *p) {
-	printf("---doProgram---\n");
+	//printf("---doProgram---\n");
 	//printf("root->state:%s\n", p->state);
 	TreeNode *p1 = p->firstChild;	
 	doExtDefList(p1);
 }
 
 void doExtDefList(TreeNode *p) {
-	printf("doExtDefList\n");
+	//printf("doExtDefList\n");
 	//printf("TreeNode->state:%s\n", p->state);
 	//printf("TreeNode->productionRule: %d\n", p->productionRule);
 	switch (p->productionRule) {
@@ -92,7 +92,7 @@ void doExtDefList(TreeNode *p) {
 }
 
 void doExtDef(TreeNode *p) {
-	printf("doExtDef\n");
+	//printf("doExtDef\n");
 	//printf("TreeNode->state:%s\n", p->state);
 	//printf("TreeNode->productionRule: %d\n", p->productionRule);
 	switch (p->productionRule) {
@@ -100,14 +100,10 @@ void doExtDef(TreeNode *p) {
 			//将doExtDecList()返回的变量链表赋为doSpecifier()返回的Type,插入变量表
 			TreeNode *p1 = p->firstChild;
 			TreeNode *p2 = p1->rightBrother;
-		//	printf("here!\n");
 			Type type = doSpecifier(p1);
-		//	printf("here!\n");
 			varElement *elem = doExtDecList(p2);
-		//	printf("here!\n");
 			varElement *elemn = NULL;
 			while (elem != NULL) {
-		//		printf("here!\n");
 				Type t = elem->type;
 				if (t->kind != BASIC) {
 					while (t->kind == ARRAY || t->u.array.elem->kind != BASIC) {	//如果是数组要找到最底部的type节点赋为Specifier传回的Type
@@ -117,10 +113,15 @@ void doExtDef(TreeNode *p) {
 					t->u.array.elem = type;	//在倒数第二个节点处改变Type
 				} else {
 					//free(elem->type);
-					elem->type = type;	
-					elemn = elem->next;
-					insert(elem);
-					elem = elemn;
+					elem->type = type;
+					if (search(elem->name) != NULL) {	//查找此层定义不为空，说明变量重复定义
+						printf("error type 3 at line %d: variable %s redefined.\n", p->line, elem->name);
+						elem = elem->next;
+					} else {	
+						elemn = elem->next;
+						insert(elem);
+						elem = elemn;
+					}
 				}
 			}
 			break;
@@ -143,7 +144,7 @@ void doExtDef(TreeNode *p) {
 }
 
 varElement* doExtDecList(TreeNode *p) {
-	printf("doExtDecList\n");
+	//printf("doExtDecList\n");
 	//这个函数会把同一语句中出现的变量串起来
 	switch (p->productionRule) {
 		case 1:{
@@ -165,7 +166,7 @@ varElement* doExtDecList(TreeNode *p) {
 }
 
 Type doSpecifier(TreeNode *p) {
-	printf("doSpecifier\n");
+	//printf("doSpecifier\n");
 	//printf("TreeNode->state:%s\n", p->state);
 	//printf("TreeNode->productionRule: %d\n", p->productionRule);
 	Type type = (Type)malloc(sizeof(struct Type_));
@@ -194,8 +195,8 @@ Type doSpecifier(TreeNode *p) {
 } 
 
 Type doStructSpecifier(TreeNode *p) {	//待完成
-	printf("doStructSpecifier\n");
-	printf("production rule:%d\n", p->productionRule);
+	//printf("doStructSpecifier\n");
+	//printf("production rule:%d\n", p->productionRule);
 	switch (p->productionRule) {
 		case 1: {
 					TreeNode *p2 = p->firstChild->rightBrother;
@@ -206,7 +207,6 @@ Type doStructSpecifier(TreeNode *p) {	//待完成
 							printf("Error type 16 at line %d: struct tag %s is same as other struct tag or variable name\n", p->line, tagname);					
 							return NULL;
 						}
-						//printf("here1\n");
 						structTableElement *str = (structTableElement *)malloc(sizeof(structTableElement));
 						str->name = tagname;
 						str->type = (Type)malloc(sizeof(struct Type_));
@@ -218,7 +218,7 @@ Type doStructSpecifier(TreeNode *p) {	//待完成
 						Type temptype = (Type)malloc(sizeof(struct Type_));
 						temptype->kind = STRUCTURE;
 						temptype->u.var = doDefList(p4, 1);
-						showStructMember(temptype);
+						//showStructMember(temptype);
 						return temptype;
 					}
 					break;
@@ -232,7 +232,7 @@ Type doStructSpecifier(TreeNode *p) {	//待完成
 						printf("Error type 17 at line %d: struct tag %s undefined\n", p->line, tagname);
 						return NULL;
 					} else {	//查找到，就将表中的type返回
-						showStructMember(str->type);
+						//showStructMember(str->type);
 						return str->type;
 					}
 					break;
@@ -241,7 +241,7 @@ Type doStructSpecifier(TreeNode *p) {	//待完成
 }
 
 char* doOptTag(TreeNode *p) {	//返回一个含名字的字符串
-	printf("doOptTag\n");
+	//printf("doOptTag\n");
 	//printf("TreeNode->state:%s\n", p->state);
 	switch (p->productionRule) {
 		case 1: {
@@ -266,9 +266,9 @@ char* doTag(TreeNode *p) {
 }
 
 varElement* doVarDec(TreeNode *p) {
-	printf("doVarDec\n");
+	//printf("doVarDec\n");
 	//printf("TreeNode->state:%s\n", p->state);
-	printf("TreeNode->productionRule: %d\n", p->productionRule);
+	//printf("TreeNode->productionRule: %d\n", p->productionRule);
 	switch (p->productionRule) {
 		case 1:{
 			//产生ID，产生一个varElement节点，value设为ID名称，返回
@@ -296,9 +296,8 @@ varElement* doVarDec(TreeNode *p) {
 			type2->kind = ARRAY;
 			type2->u.array.size = p3->value.intValue;
 			type2->u.array.elem = type;
-			printf("here1\n");
 			while (p1->productionRule != 1) {	//如果仍然是产生VarDec LB INT RB递推处理
-				printf("in while\n");
+				//printf("in while\n");
 				type = type2;
 				p1 = p1->firstChild;
 				p3 = p1->rightBrother->rightBrother;
@@ -306,15 +305,13 @@ varElement* doVarDec(TreeNode *p) {
 				type2->kind = ARRAY;
 				type2->u.array.size = p3->value.intValue;
 				type2->u.array.elem = type;
-				printf("out while\n");
+				//printf("out while\n");
 			}
-			printf("here2\n");
 			p1 = p1->firstChild;	//指向ID点
 			elem->name = (char *)malloc(sizeof(char *)*(strlen(p1->value.idValue)+1));
 			elem->next = NULL;
 			strcpy(elem->name, p1->value.idValue);
 			elem->type = type2;
-			printf("here3 %s get\n", elem->name);
 			return elem;
 			break;
 				}
@@ -322,7 +319,7 @@ varElement* doVarDec(TreeNode *p) {
 }
 
 void doFunDec(Type type, TreeNode *p) {
-	printf("doFunDec\n");
+	//printf("doFunDec\n");
 	//printf("TreeNode->state:%s\n", p->state);
 	TreeNode *p1 = p->firstChild;
 	char * funcname = (char *)malloc(sizeof(char*)*(strlen((p1->value).idValue)+1));
@@ -351,7 +348,7 @@ void doFunDec(Type type, TreeNode *p) {
 }
 
 argElement* doVarList(TreeNode *p) { //仍然用定义串联的方法返回参数列表
-	printf("doVarList\n");
+	//printf("doVarList\n");
 	//printf("TreeNode->state:%s\n", p->state);
 	switch (p->productionRule) {
 		case 1: {
@@ -373,7 +370,7 @@ argElement* doVarList(TreeNode *p) { //仍然用定义串联的方法返回参�
 }
 
 argElement* doParamDec(TreeNode *p) {	//这	边有个参数为数组的处理，考虑是否好完成
-	printf("doParamDec\n");
+	//printf("doParamDec\n");
 	TreeNode *p1 = p->firstChild;
 	TreeNode *p2 = p1->rightBrother;	
 	argElement *arg = (argElement *)malloc(sizeof(argElement));
@@ -383,7 +380,7 @@ argElement* doParamDec(TreeNode *p) {	//这	边有个参数为数组的处理，
 }
 
 void doCompSt(TreeNode *p) {
-	printf("doCompSt\n");
+	//printf("doCompSt\n");
 	//printf("TreeNode->state:%s\n", p->state);
 	into_a_layer();
 	TreeNode *p2 = p->firstChild->rightBrother;
@@ -394,7 +391,7 @@ void doCompSt(TreeNode *p) {
 }
 
 void doStmtList(TreeNode *p) {
-	printf("doStmtList\n");
+	//printf("doStmtList\n");
 	//printf("TreeNode->state:%s\n", p->state);
 	switch (p->productionRule) {
 		case 1:{
@@ -410,7 +407,7 @@ void doStmtList(TreeNode *p) {
 }
 
 void doStmt(TreeNode *p) {
-	printf("doStmt\n");
+	//printf("doStmt\n");
 	//printf("TreeNode->state:%s\n", p->state);
 	//printf("TreeNode->productionRule: %d\n", p->productionRule);
 	switch (p->productionRule) {
@@ -488,7 +485,7 @@ void doStmt(TreeNode *p) {
 }
 
 varElement* doDefList(TreeNode *p, int ifStruct) {
-	printf("doDefList\n");
+	//printf("doDefList\n");
 	//printf("TreeNode->state:%s\n", p->state);
 	switch (p->productionRule) {
 		case 1:{
@@ -513,7 +510,7 @@ varElement* doDefList(TreeNode *p, int ifStruct) {
 }
 
 varElement* doDef(TreeNode *p, int ifStruct) {
-	printf("doDef\n");
+	//printf("doDef\n");
 	//printf("TreeNode->state:%s\n", p->state);
 	//将doDecList()返回的变量链表赋为doSpecifier()返回的Type,插入变量表
 	TreeNode *p1 = p->firstChild;
@@ -529,7 +526,6 @@ varElement* doDef(TreeNode *p, int ifStruct) {
 
 	if(elem->initType != NULL) {
 		//initType不为空，说明声明的同时初始化，需要判断类型是否匹配
-		//printf("here\n");
 		if (ifStruct == 1) {
 			printf("Error type 15 at line %d: struct member initialization is denied\n", p->line);
 		} 
@@ -544,7 +540,7 @@ varElement* doDef(TreeNode *p, int ifStruct) {
 		if (t->kind != BASIC) {
 			//printf("z3\n");
 			while (t->kind == ARRAY && t->u.array.elem->kind != BASIC) {	//如果是数组要找到最底部的type节点赋为Specifier传回的Type
-				printf("in loop\n");				
+				//printf("in loop\n");				
 				t = t->u.array.elem;				
 			}
 			//printf("z4\n");
@@ -557,19 +553,24 @@ varElement* doDef(TreeNode *p, int ifStruct) {
 			//printf("type in doDef %d\n", type->u.basic);	
 		}
 		if (ifStruct != 1) {	//普通变量，插入变量表
-			elemn = elem->next;
-			insert(elem);
-			elem = elemn;
+			if (search(elem->name) != NULL) {	//查找此层定义不为空，说明变量重复定义
+				printf("error type 3 at line %d: variable %s redefined.\n", p->line, elem->name);
+				elem = elem->next;
+			} else {
+				elemn = elem->next;
+				insert(elem);
+				elem = elemn;
+			}
 		} else {	//结构体变量，保持链表结构
 			elem = elem->next;
 		}
 	}
-	printf("out of doDef\n");
+	//printf("out of doDef\n");
 	return elemHead;
 }
 
 varElement* doDecList(TreeNode *p) {
-	printf("doDecList\n");
+	//printf("doDecList\n");
 	//printf("TreeNode->state:%s\n", p->state);
 	//printf("TreeNode->productionRule: %d\n", p->productionRule);
 	//这个函数会把同一语句中出现的变量串起来
@@ -593,8 +594,8 @@ varElement* doDecList(TreeNode *p) {
 }
 
 varElement* doDec(TreeNode *p) {
-	printf("doDec\n");
-	printf("TreeNode->production rule: %d\n", p->productionRule);
+	//printf("doDec\n");
+	//printf("TreeNode->production rule: %d\n", p->productionRule);
 	switch (p->productionRule) {
 		case 1:{
 			TreeNode *p1 = p->firstChild;
@@ -623,7 +624,7 @@ varElement* doDec(TreeNode *p) {
 }
 
 Type doOptExp(TreeNode *p) {
-	printf("doOptExp\n");
+	//printf("doOptExp\n");
 	switch(p->productionRule) {
 		case 1: {
 			TreeNode *p1 = p->firstChild;
@@ -637,7 +638,7 @@ Type doOptExp(TreeNode *p) {
 }
 
 Type doExp(TreeNode *p) {
-	printf("doExp\n");
+	//printf("doExp\n");
 	//printf("TreeNode->state:%s\n", p->state);
 	//printf("TreeNode->productionRule: %d\n", p->productionRule);
 	if(strcmp(p->state, "Exp") == 0) {
@@ -647,7 +648,7 @@ Type doExp(TreeNode *p) {
 				   //Type type = (Type)malloc(sizeof(struct Type_));
 				   Type t1 = doExp(tempNode);
 				   Type t2 = doExp(temp2Node);	
-				   if (tempNode->productionRule > 16 && tempNode->productionRule < 14) {	//不符合唯一的三个能当右值的产生式
+				   if (tempNode->productionRule > 16 || tempNode->productionRule < 14) {	//不符合唯一的三个能当右值的产生式
 				   	printf("Error type 6 at line %d: left expression illegal for assign\n", p->line);
 				   }
 				   if(t1 != NULL && t2 != NULL) {
@@ -842,7 +843,7 @@ Type doExp(TreeNode *p) {
 							printf("Error type 13 at line %d: error use of operator '.'\n", p->line);
 						}
 						else {
-							showStructMember(t);
+							//showStructMember(t);
 ;							varElement *field = t->u.var;
 							while(field != NULL) {
 								if(strcmp(field->name, p3->value.idValue) == 0) {
@@ -888,7 +889,7 @@ Type doExp(TreeNode *p) {
 }
 
 argElement *doArgs(TreeNode *p) {
-	printf("doArgs\n");
+	//printf("doArgs\n");
 	//printf("TreeNode->state:%s\n", p->state);
 	switch (p->productionRule) {
 		case 1: {
@@ -917,8 +918,8 @@ int compareArgs (argElement *arg1, argElement *arg2) {
 	argElement *p1 = arg1; 
 	argElement *p2 = arg2;
 	while (p1 != NULL) {
-		printf("p1 %d\n", p1->type->u.basic);
-		printf("p2 %d\n", p2->type->u.basic);
+		//printf("p1 %d\n", p1->type->u.basic);
+		//printf("p2 %d\n", p2->type->u.basic);
 		if (p2 == NULL)
 			return 0;
 		if (!type_equal(p1->type, p2->type))

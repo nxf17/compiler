@@ -2,7 +2,7 @@ int main()
 {
 	float i;
 	int j = 0x24, k = 024;
-	i = j;
+	i = j;	//赋值左右不统一
 	while (i < 10) {	//使用float做比较
 		i = i + 1;
 		break;

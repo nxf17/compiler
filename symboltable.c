@@ -26,9 +26,9 @@ void init_table() {
 
 //插入变量表，要求调用者在调用前处理好name和type
 void insert(varElement* elem) {
-	printf("in insert %s\n", elem->name);
+	//printf("in insert %s\n", elem->name);
 	int index = hash_pjw(elem->name);
-	printf("insert index %d\n", index);
+	//printf("insert index %d\n", index);
 	elem->slot_no = index;
 	elem->layer_no = layer;
 	elem->next = NULL;
@@ -57,9 +57,9 @@ void insert(varElement* elem) {
 
 //查找任何最接近此层的定义
 varElement *searchAll(char *name) {
-	printf("in search all %s\n", name);
+	//printf("in search all %s\n", name);
 	int index = hash_pjw(name);
-	printf("search index: %d\n", index);
+	//printf("search index: %d\n", index);
 	varElement *p = hashTable[index];
 	while (p != NULL) {
 		//因为每次都把越里层的插在前面，所以找到的第一个一定是最里层的定义
@@ -72,9 +72,9 @@ varElement *searchAll(char *name) {
 
 //查找此层的定义
 varElement *search(char *name) {
-	printf("in search %s\n", name);
+	//printf("in search %s\n", name);
 	int index = hash_pjw(name);
-	printf("search index: %d\n", index);
+	//printf("search index: %d\n", index);
 	varElement *p = hashTable[index];
 	//if (p == NULL) printf("null\n");
 	while (p != NULL) {
@@ -112,14 +112,14 @@ void out_of_a_layer() {
 // ！！为什么加了这两个函数就报错了我给跪了难道不是和下面两个一样嘛...wtf
 //向结构体表插入一个结构体项
 void insertStruct(structTableElement *struc) {
-	printf("in insertStruct %s\n", struc->name);
+	//printf("in insertStruct %s\n", struc->name);
 	struc->next = structTableHeader;
 	structTableHeader = struc;
 }	
 
 //查询一个结构体
 structTableElement* searchStruct(char * strname) {
-	printf("in searchStruct %s\n", strname);
+	//printf("in searchStruct %s\n", strname);
 	structTableElement *q = structTableHeader;
 	//if (p == NULL) printf("null\n");
 	while (q != NULL) {
@@ -128,13 +128,13 @@ structTableElement* searchStruct(char * strname) {
 			return q;
 		q = q->next;
 	}
-	printf("return NULL in searchStruct\n");
+	//printf("return NULL in searchStruct\n");
 	return NULL;
 }
 
 //向函数表插入一个函数项
 void insertFunc(funcTableElement *func) {
-	printf("in insertFunc %s\n", func->name);
+	//printf("in insertFunc %s\n", func->name);
 	func->next = funcTableHeader;
 	funcTableHeader = func;
 	if (funcTableHeader == NULL) printf("null in insertFunc\n");
@@ -142,7 +142,7 @@ void insertFunc(funcTableElement *func) {
 
 //查询一个函数
 funcTableElement* searchFunc(char * funcname) {
-	printf("in searchFunc %s\n", funcname);
+	//printf("in searchFunc %s\n", funcname);
 	funcTableElement *p = funcTableHeader;
 	//if (funcTableHeader == NULL) printf("null func\n");
 	//else printf("not null func\n");
