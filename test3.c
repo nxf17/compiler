@@ -1,10 +1,10 @@
 int main()
 {
-	float i;
+	float i = 3;
 	int j = 0x24, k = 024;
 	i = j;	//赋值左右不统一
 	while (i < 10) {	//使用float做比较
-		i = i + 1;
+		i = i * 2.0;
 		break;
 	}
 	break;	//错误用break
