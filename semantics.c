@@ -7,6 +7,10 @@
 #include "symboltable.h"
 #include "semantics.h"
 
+FILE *out_fp;
+bool OUT = true;
+int ADDR = 0;
+
 bool type_equal(Type x, Type y) { //判断类型是否匹配
 	if(x->kind == BASIC && y->kind == BASIC) {
 		if(x->u.basic == y->u.basic) {
@@ -70,8 +74,43 @@ static int loopNum = 0;	//用于记录循环在第几层
 void doProgram(TreeNode *p) {
 	//printf("---doProgram---\n");
 	//printf("root->state:%s\n", p->state);
-	TreeNode *p1 = p->firstChild;	
+	out_fp = fopen("out.s", "w");
+	if(out_fp == NULL) 
+		perror("error in creating out.s\n");
+
+	fprintf(out_fp,".data\n");
+	fprintf(out_fp,"_prompt: .asciiz \"Enter an integer:\"\n");
+	fprintf(out_fp,"_ret: .asciiz \"\\n\"\n");
+	fprintf(out_fp,".globl main\n");
+	fprintf(out_fp,".text\n");
+	fprintf(out_fp,"read:\n");
+	fprintf(out_fp,"\tli $v0,4\n");
+	fprintf(out_fp,"\tla $a0,_prompt\n");
+	fprintf(out_fp,"\tsyscall\n");
+	fprintf(out_fp,"\tli $v0,5\n");
+	fprintf(out_fp,"\tsyscall\n");
+	fprintf(out_fp,"\tjr $ra\n");
+	fprintf(out_fp,"\n");
+	fprintf(out_fp,"write:\n");
+	fprintf(out_fp,"\tli $v0,1\n");
+	fprintf(out_fp,"\tsyscall\n");
+	fprintf(out_fp,"\tli $v0,4\n");
+	fprintf(out_fp,"\tla $a0,_ret\n");
+	fprintf(out_fp,"\tsyscall\n");
+	fprintf(out_fp,"\tmove $v0,$0\n");
+	fprintf(out_fp,"\tjr $ra\n");
+	fprintf(out_fp,"\n");
+	fprintf(out_fp,"main:\n");
+
+	TreeNode *p1 = p->firstChild;
 	doExtDefList(p1);
+	fprintf(out_fp,"\tmove $v0, $0\n");
+	fprintf(out_fp,"\tjr $ra\n");//手动添加return 0，后续要进行修改
+	fclose(out_fp);
+	if(!OUT) 
+		remove("out.s");
+	else
+		printf("Create out.s successfully\n");
 }
 
 void doExtDefList(TreeNode *p) {
@@ -115,7 +154,7 @@ void doExtDef(TreeNode *p) {
 					//free(elem->type);
 					elem->type = type;
 					if (search(elem->name) != NULL) {	//查找此层定义不为空，说明变量重复定义
-						printf("Error type 3 at line %d: variable %s redefined.\n", p->line, elem->name);
+						printf("error type 3 at line %d: variable %s redefined.\n", p->line, elem->name);
 						elem = elem->next;
 					} else {	
 						elemn = elem->next;
@@ -174,25 +213,25 @@ Type doSpecifier(TreeNode *p) {
 		case 1:{
 				   if(p->firstChild == NULL)
 					   printf("NULL\n");
-			TreeNode *p1 = p->firstChild;
-			type->kind = BASIC;
-			//printf("p1->state: %s\n", p1->state);
-			if (strcmp(p1->state, "TYPE:int") == 0) {
-				type->u.basic = 0;
-			}
-			else
-				type->u.basic = 1;
-			break;
+				   TreeNode *p1 = p->firstChild;
+				   type->kind = BASIC;
+				   //printf("p1->state: %s\n", p1->state);
+				   if (strcmp(p1->state, "TYPE:int") == 0) {
+					   type->u.basic = 0;
+				   }
+				   else
+					   type->u.basic = 1;
+				   break;
 			   }
 		case 2:{
-			TreeNode *p1 = p->firstChild;
-			type = doStructSpecifier(p1);
-			return type;
-			break;
+				   TreeNode *p1 = p->firstChild;
+				   type = doStructSpecifier(p1);
+				   return type;
+				   break;
 			   }
 	}
 	return type;
-} 
+}
 
 Type doStructSpecifier(TreeNode *p) {	//待完成
 	//printf("doStructSpecifier\n");
@@ -325,7 +364,7 @@ void doFunDec(Type type, TreeNode *p) {
 	char * funcname = (char *)malloc(sizeof(char*)*(strlen((p1->value).idValue)+1));
 	strcpy(funcname, p1->value.idValue);	//得到函数名
 	if (searchFunc(funcname) != NULL) {
-		printf("Error type 4 at line %d: function %s redefined\n", p->line, funcname);	//函数重复定义
+		printf("Error type 4 at line %d '&&': function redefined\n", p->line);	//函数重复定义
 		return;	
 	}
 	funcTableElement *elem = (funcTableElement *)malloc(sizeof(funcTableElement));
@@ -369,7 +408,7 @@ argElement* doVarList(TreeNode *p) { //仍然用定义串联的方法返回参�
 	}
 }
 
-argElement* doParamDec(TreeNode *p) {	//这	边有个参数为数组的处理，考虑是否好完成
+argElement* doParamDec(TreeNode *p) {	//这边有个参数为数组的处理，考虑是否好完成
 	//printf("doParamDec\n");
 	TreeNode *p1 = p->firstChild;
 	TreeNode *p2 = p1->rightBrother;	
@@ -426,7 +465,7 @@ void doStmt(TreeNode *p) {
 			TreeNode *p2 = p->firstChild->rightBrother;
 			Type type = doExp(p2);
 			if (!type_equal(type, funcTableHeader->type)) {	//直接和函数表中第一项比较，一定是最近的函数
-				printf("Error type 8 at line %d: function return unexpected type\n", p->line);
+				printf("Error 8 at line %d: function return unexpected type\n", p->line);
 			}
 			//printf("out return\n");
 			break;
@@ -554,7 +593,7 @@ varElement* doDef(TreeNode *p, int ifStruct) {
 		}
 		if (ifStruct != 1) {	//普通变量，插入变量表
 			if (search(elem->name) != NULL) {	//查找此层定义不为空，说明变量重复定义
-				printf("Error type 3 at line %d: variable %s redefined\n", p->line, elem->name);
+				printf("error type 3 at line %d: variable %s redefined.\n", p->line, elem->name);
 				elem = elem->next;
 			} else {
 				elemn = elem->next;
@@ -638,9 +677,9 @@ Type doOptExp(TreeNode *p) {
 }
 
 Type doExp(TreeNode *p) {
-	//printf("doExp\n");
-	//printf("TreeNode->state:%s\n", p->state);
-	//printf("TreeNode->productionRule: %d\n", p->productionRule);
+	printf("doExp\n");
+	printf("TreeNode->state:%s\n", p->state);
+	printf("TreeNode->productionRule: %d\n", p->productionRule);
 	if(strcmp(p->state, "Exp") == 0) {
 		TreeNode *tempNode = p->firstChild;//产生式右边第一个符号
 		switch (p->productionRule) {
@@ -649,16 +688,25 @@ Type doExp(TreeNode *p) {
 				   Type t1 = doExp(tempNode);
 				   Type t2 = doExp(temp2Node);	
 				   if (tempNode->productionRule > 16 || tempNode->productionRule < 14) {	//不符合唯一的三个能当右值的产生式
-				   	printf("Error type 6 at line %d: left expression illegal for assignment\n", p->line);
+					   printf("Error type 6 at line %d: left expression illegal for assign\n", p->line);
 				   }
 				   if(t1 != NULL && t2 != NULL) {
 					   //showBasicType(t1);	
 					   //showBasicType(t2);
 					   if(type_equal(t1, t2)) {
+						   printf("Exp ASSIGNOP Exp\n");
+						   if(t1->u.basic == 0) {//INT型
+							   fprintf(out_fp, "\tli $t0, %d\n", tempNode->value.intValue);
+							   fprintf(out_fp, "\tsw $t0, 0($sp)\n");
+						   }
+						   else {//FLOAT
+							   fprintf(out_fp, "\tli 0($sp), %d\n", tempNode->value.intValue);
+						   }
 						   return t1;//类型匹配
 					   }
 					   else if(!type_equal(t1, t2)) {
-						   printf("Error type 7 at line %d: '=' type mismatch\n", p->line);//类型不匹配
+						   printf("Error type 7 at line %d '=' type mismatch\n", p->line);//类型不匹配
+						   OUT = false;
 					   }
 				   }
 				break;
@@ -674,7 +722,7 @@ Type doExp(TreeNode *p) {
 						   return type;//类型匹配
 					   }
 					   else if(!type_equal(t1, t2)) {
-						   printf("Error type 7 at line %d: '&&' type mismatch\n", p->line);//类型不匹配
+						   printf("Error type 7 at line %d '&&' type mismatch\n", p->line);//类型不匹配
 					   }
 				   }
 				break;
@@ -690,7 +738,7 @@ Type doExp(TreeNode *p) {
 						   return type;//类型匹配
 					   }
 					   else if(!type_equal(t1, t2)) {
-						   printf("Error type 7 at line %d: '||' type mismatch\n", p->line);//类型不匹配
+						   printf("Error type 7 at line %d '||' type mismatch\n", p->line);//类型不匹配
 					   }
 				   }
 				break;
@@ -706,7 +754,7 @@ Type doExp(TreeNode *p) {
 						   return type;//类型匹配
 					   }
 					   else if(!type_equal(t1, t2)) {
-						   printf("Error type 7 at line %d: 'RELOP' type mismatch\n", p->line);//类型不匹配
+						   printf("Error type 7 at line %d 'RELOP' type mismatch\n", p->line);//类型不匹配
 					   }
 				   }
 				break;
@@ -722,7 +770,7 @@ Type doExp(TreeNode *p) {
 						   return type;//类型匹配
 					   }
 					   else if(!type_equal(t1, t2)) {
-						   printf("Error type 7 at line %d: '+' type mismatch\n", p->line);//类型不匹配
+						   printf("Error type 7 at line %d '+' type mismatch\n", p->line);//类型不匹配
 					   }
 				   }
 				break;
@@ -738,7 +786,7 @@ Type doExp(TreeNode *p) {
 						   return type;//类型匹配
 					   }
 					   else if(!type_equal(t1, t2)) {
-						   printf("Error type 7 at line %d: '-' type mismatch\n", p->line);//类型不匹配
+						   printf("Error type 7 at line %d '-' type mismatch\n", p->line);//类型不匹配
 					   }
 				   }
 				break;
@@ -754,7 +802,7 @@ Type doExp(TreeNode *p) {
 						   return type;//类型匹配
 					   }
 					   else if(!type_equal(t1, t2)) {
-						   printf("Error type 7 at line %d: '*' type mismatch\n", p->line);//类型不匹配
+						   printf("Error type 7 at line %d '*' type mismatch\n", p->line);//类型不匹配
 					   }
 				   }
 				break;
@@ -770,7 +818,7 @@ Type doExp(TreeNode *p) {
 						   return type;//类型匹配
 					   }
 					   else if(!type_equal(t1, t2)) {
-						   printf("Error type 7 at line %d: '/' type mismatch\n", p->line);//类型不匹配
+						   printf("Error type 7 at line %d '/' type mismatch\n", p->line);//类型不匹配
 					   }
 				   }
 				break;
@@ -812,7 +860,7 @@ Type doExp(TreeNode *p) {
 						return NULL;
 					}
 					else if (func->argListHeader != NULL) {	//函数定义中有参数而调用没有
-						printf("Error type 9 at line %d: function var list not matched %s\n", p->line, tempNode->value.idValue);
+						printf("Error type 9 at line %d:function var list not matched %s\n", p->line, tempNode->value.idValue);
 						return func->type;
 					}
 					break;
@@ -826,7 +874,7 @@ Type doExp(TreeNode *p) {
 						if(t1->kind != ARRAY)
 							printf("Error type 10 at line %d: normal variable uses '[]'\n", p->line);
 						else if(t2->u.basic != 0)
-							printf("Error type 12 at line %d: int required\n", p->line);
+							printf("Error type 12 at line %d:int required\n", p->line);
 						else {
 							type = doExp(tempNode)->u.array.elem;
 							return type;
@@ -851,7 +899,7 @@ Type doExp(TreeNode *p) {
 								}
 								field = field->next;
 							}
-							printf("Error type 14 at line %d: struct member %s undefined\n", p->line, tempNode->rightBrother->rightBrother->value.idValue);
+							printf("Error type 14 at line %d:struct member %s undefined\n", p->line, tempNode->rightBrother->rightBrother->value.idValue);
 							//结构体成员未定义
 						}
 					}
@@ -862,24 +910,28 @@ Type doExp(TreeNode *p) {
 					varElement *id =searchAll(tempNode->value.idValue);
 					//在符号表中寻找是否定义
 					if(id == NULL) {
-						printf("Error type 1 at line %d: undefined variable %s\n", p->line, tempNode->value.idValue);
+						printf("Error type 1 at line %d:undefined variable %s\n", p->line, tempNode->value.idValue);
 					}
 					else {
 						type = id->type;
 						return type;
 					}
-				break;
+					break;
 				//ID
 					}
 			case 17:{Type type = (Type)malloc(sizeof(struct Type_));
 					type->kind = BASIC;
 					type->u.basic = 0;
+
+					fprintf(out_fp, "\taddi $sp, $sp, 4\n");
 					return type;
 					//INT
 					}
 			case 18:{Type type = (Type)malloc(sizeof(struct Type_));
 					type->kind = BASIC;
 					type->u.basic = 1;
+
+					//fprintf(out_fp, "\taddi $sp, $sp, 4\n");
 					return type;
 					//FLOAT
 					}
