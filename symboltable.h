@@ -55,6 +55,7 @@ struct varElement {
 	int slot_no;	//在哪个槽
 	struct varElement *next;	//在函数表表示同一层的下一个，在结构体中就是下一个成员
 	struct varElement *slot_next;	//同一槽的下一个
+	int addr_sp;//栈区地址偏移量
 };
 
 /* 结构体变量表项 */

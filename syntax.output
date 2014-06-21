@@ -9,7 +9,7 @@ Terminals unused in grammar
 
     1 Program: ExtDefList
 
-    2 ExtDefList: %empty
+    2 ExtDefList: /* 空 */
     3           | ExtDef ExtDefList
 
     4 ExtDef: Specifier ExtDecList SEMI
@@ -25,7 +25,7 @@ Terminals unused in grammar
    11 StructSpecifier: STRUCT OptTag LC DefList RC
    12                | STRUCT Tag
 
-   13 OptTag: %empty
+   13 OptTag: /* 空 */
    14       | ID
 
    15 Tag: ID
@@ -44,7 +44,7 @@ Terminals unused in grammar
    23 CompSt: LC DefList StmtList RC
 
    24 StmtList: Stmt StmtList
-   25         | %empty
+   25         | /* 空 */
 
    26 Stmt: Exp SEMI
    27     | CompSt
@@ -57,7 +57,7 @@ Terminals unused in grammar
    34     | FOR LP OptExp SEMI Exp SEMI OptExp RP Stmt
 
    35 DefList: Def DefList
-   36        | %empty
+   36        | /* 空 */
 
    37 Def: Specifier DecList SEMI
 
@@ -68,7 +68,7 @@ Terminals unused in grammar
    41    | VarDec ASSIGNOP Exp
 
    42 OptExp: Exp
-   43       | %empty
+   43       | /* 空 */
 
    44 Exp: Exp ASSIGNOP Exp
    45    | Exp AND Exp
@@ -191,11 +191,11 @@ State 0
 
     $default  reduce using rule 2 (ExtDefList)
 
-    Program          转到状态 3
-    ExtDefList       转到状态 4
-    ExtDef           转到状态 5
-    Specifier        转到状态 6
-    StructSpecifier  转到状态 7
+    Program          转到状态3
+    ExtDefList       转到状态4
+    ExtDef           转到状态5
+    Specifier        转到状态6
+    StructSpecifier  转到状态7
 
 
 State 1
@@ -214,8 +214,8 @@ State 2
 
     $default  reduce using rule 13 (OptTag)
 
-    OptTag  转到状态 9
-    Tag     转到状态 10
+    OptTag  转到状态9
+    Tag     转到状态10
 
 
 State 3
@@ -241,10 +241,10 @@ State 5
 
     $default  reduce using rule 2 (ExtDefList)
 
-    ExtDefList       转到状态 12
-    ExtDef           转到状态 5
-    Specifier        转到状态 6
-    StructSpecifier  转到状态 7
+    ExtDefList       转到状态12
+    ExtDef           转到状态5
+    Specifier        转到状态6
+    StructSpecifier  转到状态7
 
 
 State 6
@@ -256,9 +256,9 @@ State 6
     ID    shift, and go to state 13
     SEMI  shift, and go to state 14
 
-    ExtDecList  转到状态 15
-    VarDec      转到状态 16
-    FunDec      转到状态 17
+    ExtDecList  转到状态15
+    VarDec      转到状态16
+    FunDec      转到状态17
 
 
 State 7
@@ -348,7 +348,7 @@ State 17
 
     LC  shift, and go to state 23
 
-    CompSt  转到状态 24
+    CompSt  转到状态24
 
 
 State 18
@@ -360,10 +360,10 @@ State 18
 
     $default  reduce using rule 36 (DefList)
 
-    Specifier        转到状态 25
-    StructSpecifier  转到状态 7
-    DefList          转到状态 26
-    Def              转到状态 27
+    Specifier        转到状态25
+    StructSpecifier  转到状态7
+    DefList          转到状态26
+    Def              转到状态27
 
 
 State 19
@@ -375,10 +375,10 @@ State 19
     RP      shift, and go to state 28
     STRUCT  shift, and go to state 2
 
-    Specifier        转到状态 29
-    StructSpecifier  转到状态 7
-    VarList          转到状态 30
-    ParamDec         转到状态 31
+    Specifier        转到状态29
+    StructSpecifier  转到状态7
+    VarList          转到状态30
+    ParamDec         转到状态31
 
 
 State 20
@@ -394,8 +394,8 @@ State 21
 
     ID  shift, and go to state 32
 
-    ExtDecList  转到状态 33
-    VarDec      转到状态 16
+    ExtDecList  转到状态33
+    VarDec      转到状态16
 
 
 State 22
@@ -414,10 +414,10 @@ State 23
 
     $default  reduce using rule 36 (DefList)
 
-    Specifier        转到状态 25
-    StructSpecifier  转到状态 7
-    DefList          转到状态 35
-    Def              转到状态 27
+    Specifier        转到状态25
+    StructSpecifier  转到状态7
+    DefList          转到状态35
+    Def              转到状态27
 
 
 State 24
@@ -433,9 +433,9 @@ State 25
 
     ID  shift, and go to state 32
 
-    VarDec   转到状态 36
-    DecList  转到状态 37
-    Dec      转到状态 38
+    VarDec   转到状态36
+    DecList  转到状态37
+    Dec      转到状态38
 
 
 State 26
@@ -454,10 +454,10 @@ State 27
 
     $default  reduce using rule 36 (DefList)
 
-    Specifier        转到状态 25
-    StructSpecifier  转到状态 7
-    DefList          转到状态 40
-    Def              转到状态 27
+    Specifier        转到状态25
+    StructSpecifier  转到状态7
+    DefList          转到状态40
+    Def              转到状态27
 
 
 State 28
@@ -473,7 +473,7 @@ State 29
 
     ID  shift, and go to state 32
 
-    VarDec  转到状态 41
+    VarDec  转到状态41
 
 
 State 30
@@ -534,10 +534,10 @@ State 35
 
     $default  reduce using rule 25 (StmtList)
 
-    CompSt    转到状态 57
-    StmtList  转到状态 58
-    Stmt      转到状态 59
-    Exp       转到状态 60
+    CompSt    转到状态57
+    StmtList  转到状态58
+    Stmt      转到状态59
+    Exp       转到状态60
 
 
 State 36
@@ -607,10 +607,10 @@ State 43
     TYPE    shift, and go to state 1
     STRUCT  shift, and go to state 2
 
-    Specifier        转到状态 29
-    StructSpecifier  转到状态 7
-    VarList          转到状态 64
-    ParamDec         转到状态 31
+    Specifier        转到状态29
+    StructSpecifier  转到状态7
+    VarList          转到状态64
+    ParamDec         转到状态31
 
 
 State 44
@@ -656,7 +656,7 @@ State 48
     NOT    shift, and go to state 49
     LP     shift, and go to state 50
 
-    Exp  转到状态 66
+    Exp  转到状态66
 
 
 State 49
@@ -670,7 +670,7 @@ State 49
     NOT    shift, and go to state 49
     LP     shift, and go to state 50
 
-    Exp  转到状态 67
+    Exp  转到状态67
 
 
 State 50
@@ -684,7 +684,7 @@ State 50
     NOT    shift, and go to state 49
     LP     shift, and go to state 50
 
-    Exp  转到状态 68
+    Exp  转到状态68
 
 
 State 51
@@ -698,7 +698,7 @@ State 51
     NOT    shift, and go to state 49
     LP     shift, and go to state 50
 
-    Exp  转到状态 69
+    Exp  转到状态69
 
 
 State 52
@@ -771,10 +771,10 @@ State 59
 
     $default  reduce using rule 25 (StmtList)
 
-    CompSt    转到状态 57
-    StmtList  转到状态 76
-    Stmt      转到状态 59
-    Exp       转到状态 60
+    CompSt    转到状态57
+    StmtList  转到状态76
+    Stmt      转到状态59
+    Exp       转到状态60
 
 
 State 60
@@ -815,7 +815,7 @@ State 61
     NOT    shift, and go to state 49
     LP     shift, and go to state 50
 
-    Exp  转到状态 88
+    Exp  转到状态88
 
 
 State 62
@@ -831,9 +831,9 @@ State 63
 
     ID  shift, and go to state 32
 
-    VarDec   转到状态 36
-    DecList  转到状态 89
-    Dec      转到状态 38
+    VarDec   转到状态36
+    DecList  转到状态89
+    Dec      转到状态38
 
 
 State 64
@@ -856,8 +856,8 @@ State 65
     LP     shift, and go to state 50
     RP     shift, and go to state 90
 
-    Exp   转到状态 91
-    Args  转到状态 92
+    Exp   转到状态91
+    Args  转到状态92
 
 
 State 66
@@ -968,7 +968,7 @@ State 70
     NOT    shift, and go to state 49
     LP     shift, and go to state 50
 
-    Exp  转到状态 95
+    Exp  转到状态95
 
 
 State 71
@@ -982,7 +982,7 @@ State 71
     NOT    shift, and go to state 49
     LP     shift, and go to state 50
 
-    Exp  转到状态 96
+    Exp  转到状态96
 
 
 State 72
@@ -998,8 +998,8 @@ State 72
 
     $default  reduce using rule 43 (OptExp)
 
-    OptExp  转到状态 97
-    Exp     转到状态 98
+    OptExp  转到状态97
+    Exp     转到状态98
 
 
 State 73
@@ -1048,7 +1048,7 @@ State 78
     NOT    shift, and go to state 49
     LP     shift, and go to state 50
 
-    Exp  转到状态 99
+    Exp  转到状态99
 
 
 State 79
@@ -1062,7 +1062,7 @@ State 79
     NOT    shift, and go to state 49
     LP     shift, and go to state 50
 
-    Exp  转到状态 100
+    Exp  转到状态100
 
 
 State 80
@@ -1076,7 +1076,7 @@ State 80
     NOT    shift, and go to state 49
     LP     shift, and go to state 50
 
-    Exp  转到状态 101
+    Exp  转到状态101
 
 
 State 81
@@ -1090,7 +1090,7 @@ State 81
     NOT    shift, and go to state 49
     LP     shift, and go to state 50
 
-    Exp  转到状态 102
+    Exp  转到状态102
 
 
 State 82
@@ -1104,7 +1104,7 @@ State 82
     NOT    shift, and go to state 49
     LP     shift, and go to state 50
 
-    Exp  转到状态 103
+    Exp  转到状态103
 
 
 State 83
@@ -1118,7 +1118,7 @@ State 83
     NOT    shift, and go to state 49
     LP     shift, and go to state 50
 
-    Exp  转到状态 104
+    Exp  转到状态104
 
 
 State 84
@@ -1132,7 +1132,7 @@ State 84
     NOT    shift, and go to state 49
     LP     shift, and go to state 50
 
-    Exp  转到状态 105
+    Exp  转到状态105
 
 
 State 85
@@ -1146,7 +1146,7 @@ State 85
     NOT    shift, and go to state 49
     LP     shift, and go to state 50
 
-    Exp  转到状态 106
+    Exp  转到状态106
 
 
 State 86
@@ -1167,7 +1167,7 @@ State 87
     NOT    shift, and go to state 49
     LP     shift, and go to state 50
 
-    Exp  转到状态 108
+    Exp  转到状态108
 
 
 State 88
@@ -1583,8 +1583,8 @@ State 109
     NOT    shift, and go to state 49
     LP     shift, and go to state 50
 
-    Exp   转到状态 91
-    Args  转到状态 115
+    Exp   转到状态91
+    Args  转到状态115
 
 
 State 110
@@ -1613,9 +1613,9 @@ State 111
     BREAK     shift, and go to state 55
     CONTINUE  shift, and go to state 56
 
-    CompSt  转到状态 57
-    Stmt    转到状态 116
-    Exp     转到状态 60
+    CompSt  转到状态57
+    Stmt    转到状态116
+    Exp     转到状态60
 
 
 State 112
@@ -1636,9 +1636,9 @@ State 112
     BREAK     shift, and go to state 55
     CONTINUE  shift, and go to state 56
 
-    CompSt  转到状态 57
-    Stmt    转到状态 117
-    Exp     转到状态 60
+    CompSt  转到状态57
+    Stmt    转到状态117
+    Exp     转到状态60
 
 
 State 113
@@ -1652,7 +1652,7 @@ State 113
     NOT    shift, and go to state 49
     LP     shift, and go to state 50
 
-    Exp  转到状态 118
+    Exp  转到状态118
 
 
 State 114
@@ -1731,9 +1731,9 @@ State 119
     BREAK     shift, and go to state 55
     CONTINUE  shift, and go to state 56
 
-    CompSt  转到状态 57
-    Stmt    转到状态 121
-    Exp     转到状态 60
+    CompSt  转到状态57
+    Stmt    转到状态121
+    Exp     转到状态60
 
 
 State 120
@@ -1749,8 +1749,8 @@ State 120
 
     $default  reduce using rule 43 (OptExp)
 
-    OptExp  转到状态 122
-    Exp     转到状态 98
+    OptExp  转到状态122
+    Exp     转到状态98
 
 
 State 121
@@ -1785,9 +1785,9 @@ State 123
     BREAK     shift, and go to state 55
     CONTINUE  shift, and go to state 56
 
-    CompSt  转到状态 57
-    Stmt    转到状态 124
-    Exp     转到状态 60
+    CompSt  转到状态57
+    Stmt    转到状态124
+    Exp     转到状态60
 
 
 State 124

@@ -42,7 +42,6 @@
 				for(; i < depth; i++)
 					printf(" ");//缩进
 				printf("%s ", subtree->state);
-			//	printf("line:%d ", subtree->line);
 				if(subtree->state == "INT")
 					printf("%d ", subtree->value.intValue);
 				else if(subtree->state == "FLOAT")
@@ -52,7 +51,6 @@
 
 		//	}
 			printf("(%d)\n",subtree->line);
-			//printf("\n");
 			depth++;
 			Traverse(subtree->firstChild, depth);
 			depth--;
