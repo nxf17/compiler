@@ -374,6 +374,11 @@ varElement* doVarDec(TreeNode *p) {
 			elem->next = NULL;
 			strcpy(elem->name, p1->value.idValue);
 			elem->type = type2;
+
+			ADDR -= type2->u.array.size * 4;
+			elem->addr_sp = ADDR;
+			fprintf(out_fp, "\taddi $sp, $sp, -%d\n", type2->u.array.size * 4);//分配最简单的数组空间
+
 			return elem;
 			break;
 				}
@@ -678,6 +683,8 @@ varElement* doDec(TreeNode *p) {
 			Type t3 = doExp(p3);
 			elem1->initType = t3;
 			//将初始化时等号后面的变量类型赋给这个结点的initType;
+			fprintf(out_fp, "\tlw, $t0, 0($sp)\n");
+			fprintf(out_fp, "\tsw, $t0, %d($sp)\n", elem1->addr_sp - ADDR);
 			return elem1;
 			break;
 		}
@@ -700,9 +707,9 @@ Type doOptExp(TreeNode *p) {
 }
 
 Type doExp(TreeNode *p) {
-	printf("doExp\n");
-	printf("TreeNode->state:%s\n", p->state);
-	printf("TreeNode->productionRule: %d\n", p->productionRule);
+//	printf("doExp\n");
+//	printf("TreeNode->state:%s\n", p->state);
+//	printf("TreeNode->productionRule: %d\n", p->productionRule);
 	if(strcmp(p->state, "Exp") == 0) {
 		TreeNode *tempNode = p->firstChild;//产生式右边第一个符号
 		switch (p->productionRule) {
@@ -715,21 +722,15 @@ Type doExp(TreeNode *p) {
 				   }
 				   if(t1 != NULL && t2 != NULL) {
 					   if(type_equal(t1, t2)) {
-						   printf("Exp ASSIGNOP Exp\n");
-						   if(t1->u.basic == 0) {//INT型
-							   printf("tempNode->addr_sp: %d\n", tempNode->addr_sp);
-								   
-							   fprintf(out_fp, "\tlw $t0, %d($sp)\n", temp2Node->firstChild->addr_sp - ADDR);
-							   fprintf(out_fp, "\tsw $t0, %d($sp)\n", tempNode->firstChild->addr_sp - ADDR);
-						   }
-						   else {//FLOAT
-
-						   }
+//						   printf("Exp ASSIGNOP Exp\n");
+//						   printf("tempNode->firstChild->addr_sp: %d\n", tempNode->firstChild->addr_sp);
+						   fprintf(out_fp, "\tlw $t0, %d($sp)\n", temp2Node->firstChild->addr_sp - ADDR);
+						   fprintf(out_fp, "\tsw $t0, %d($sp)\n", tempNode->firstChild->addr_sp - ADDR);
 						   return t1;//类型匹配
 					   }
 					   else if(!type_equal(t1, t2)) {
 						   printf("Error type 7 at line %d '=' type mismatch\n", p->line);//类型不匹配
-						   OUT = false;
+						   OUT = false;//表示语义分析错误，删除已生成的目标文件
 					   }
 				   }
 				break;
@@ -745,18 +746,10 @@ Type doExp(TreeNode *p) {
 						   ADDR -= 4;
 						   p->firstChild->addr_sp = ADDR;//将表达式结果存在该地址处
 						   fprintf(out_fp, "\taddi $sp, $sp, -4\n");
-						   if(t1->u.basic == 0) {
-							   fprintf(out_fp, "\tlw $t0, %d($sp)\n", tempNode->firstChild->addr_sp);
-							   fprintf(out_fp, "\tlw $t1, %d($sp)\n", temp2Node->firstChild->addr_sp);
-							   fprintf(out_fp, "\tand $t0, $t0, $t1\n");
-							   fprintf(out_fp, "\tsw $t0, 0($sp)\n"); 
-						   }
-						   else {
-							   fprintf(out_fp, "\tli $t0, %d($sp)\n", temp2Node->firstChild->addr_sp);
-							   fprintf(out_fp, "\tli $t1, %d($sp)\n", temp2Node->firstChild->addr_sp);
-							   fprintf(out_fp, "\tand $t0, $t0, $t1\n");
-							   fprintf(out_fp, "\tsw $t0, 0($sp)\n");
-						   }
+						   fprintf(out_fp, "\tlw $t0, %d($sp)\n", tempNode->firstChild->addr_sp);
+						   fprintf(out_fp, "\tlw $t1, %d($sp)\n", temp2Node->firstChild->addr_sp);
+						   fprintf(out_fp, "\tand $t0, $t0, $t1\n");
+						   fprintf(out_fp, "\tsw $t0, 0($sp)\n"); 
 						   return type;//类型匹配
 					   }
 					   else if(!type_equal(t1, t2)) {
@@ -774,10 +767,18 @@ Type doExp(TreeNode *p) {
 				   if(t1 != NULL && t2 != NULL) {
 					   if(type_equal(t1, t2)) {
 						   type = t1;
+						   ADDR -= 4;
+						   p->firstChild->addr_sp = ADDR;//将表达式结果存在该地址处
+						   fprintf(out_fp, "\taddi $sp, $sp, -4\n");
+						   fprintf(out_fp, "\tlw $t0, %d($sp)\n", tempNode->firstChild->addr_sp);
+						   fprintf(out_fp, "\tlw $t1, %d($sp)\n", temp2Node->firstChild->addr_sp);
+						   fprintf(out_fp, "\tor $t0, $t0, $t1\n");
+						   fprintf(out_fp, "\tsw $t0, 0($sp)\n"); 
 						   return type;//类型匹配
 					   }
 					   else if(!type_equal(t1, t2)) {
 						   printf("Error type 7 at line %d '||' type mismatch\n", p->line);//类型不匹配
+						   OUT = false;
 					   }
 				   }
 				break;
@@ -806,26 +807,19 @@ Type doExp(TreeNode *p) {
 				   if(t1 != NULL && t2 != NULL) {
 					   if(type_equal(t1, t2)) {
 						   type = t1;
-						   printf("t1->u.basic: %d\n", t1->u.basic);
+//						   printf("t1->u.basic: %d\n", t1->u.basic);
 						   ADDR -= 4;
 						   p->firstChild->addr_sp = ADDR;
 						   fprintf(out_fp, "\taddi $sp, $sp, -4\n");
-						   if(t1->u.basic == 0) {
-							   fprintf(out_fp, "\tlw $t0, %d($sp)\n", tempNode->firstChild->addr_sp - ADDR);
-							   fprintf(out_fp, "\tlw $t1, %d($sp)\n", temp2Node->firstChild->addr_sp - ADDR);
-							   fprintf(out_fp, "\tadd $t0, $t0, $t1\n");
-							   fprintf(out_fp, "\tsw $t0, 0($sp)\n"); 
-						   }
-						   else {
-							   fprintf(out_fp, "\tli $t0, %f\n", temp2Node->firstChild->value.floatValue);
-							   fprintf(out_fp, "\tli $t1, %f\n", temp2Node->firstChild->value.floatValue);
-							   fprintf(out_fp, "\tadd $t0, $t0, $t1\n");
-							   fprintf(out_fp, "\tsw $t0, 0($sp)\n");
-						   }
+						   fprintf(out_fp, "\tlw $t0, %d($sp)\n", tempNode->firstChild->addr_sp - ADDR);
+						   fprintf(out_fp, "\tlw $t1, %d($sp)\n", temp2Node->firstChild->addr_sp - ADDR);
+						   fprintf(out_fp, "\tadd $t0, $t0, $t1\n");
+						   fprintf(out_fp, "\tsw $t0, 0($sp)\n"); 
 						   return type;//类型匹配
 					   }
 					   else if(!type_equal(t1, t2)) {
 						   printf("Error type 7 at line %d '+' type mismatch\n", p->line);//类型不匹配
+						   OUT = false;
 					   }
 				   }
 				break;
@@ -842,19 +836,11 @@ Type doExp(TreeNode *p) {
 						   ADDR -= 4;
 						   p->firstChild->addr_sp = ADDR;
 						   fprintf(out_fp, "\taddi $sp, $sp, -4\n");
-						   if(t1->u.basic == 0) {
-							   fprintf(out_fp, "\tlw $t0, %d($sp)\n", tempNode->firstChild->addr_sp - ADDR);
-							   fprintf(out_fp, "\tlw $t1, %d($sp)\n", temp2Node->firstChild->addr_sp - ADDR);
-							   fprintf(out_fp, "\tsub $t0, $t0, $t1\n");
-							   fprintf(out_fp, "\tsw $t0, 0($sp)\n"); 
-						   }
-						   else {
-							   fprintf(out_fp, "\tli $t0, %f\n", temp2Node->firstChild->value.floatValue);
-							   fprintf(out_fp, "\tli $t1, %f\n", temp2Node->firstChild->value.floatValue);
-							   fprintf(out_fp, "\tsub $t0, $t0, $t1\n");
-							   fprintf(out_fp, "\tsw $t0, 0($sp)\n");
-						   }
-
+						   fprintf(out_fp, "\tlw $t0, %d($sp)\n", tempNode->firstChild->addr_sp - ADDR);
+						   fprintf(out_fp, "\tlw $t1, %d($sp)\n", temp2Node->firstChild->addr_sp - ADDR);
+						   fprintf(out_fp, "\tsub $t0, $t0, $t1\n");
+						   fprintf(out_fp, "\tsw $t0, 0($sp)\n"); 
+		
 						   return type;//类型匹配
 					   }
 					   else if(!type_equal(t1, t2)) {
@@ -871,6 +857,14 @@ Type doExp(TreeNode *p) {
 				   if(t1 != NULL && t2 != NULL) {
 					   if(type_equal(t1, t2)) {
 						   type = t1;
+
+						   ADDR -= 4;
+						   p->firstChild->addr_sp = ADDR;
+						   fprintf(out_fp, "\taddi $sp, $sp, -4\n");
+						   fprintf(out_fp, "\tlw $t0, %d($sp)\n", tempNode->firstChild->addr_sp - ADDR);
+						   fprintf(out_fp, "\tlw $t1, %d($sp)\n", temp2Node->firstChild->addr_sp - ADDR);
+						   fprintf(out_fp, "\tmul $t0, $t0, $t1\n");
+						   fprintf(out_fp, "\tsw $t0, 0($sp)\n"); 
 						   return type;//类型匹配
 					   }
 					   else if(!type_equal(t1, t2)) {
@@ -887,6 +881,13 @@ Type doExp(TreeNode *p) {
 				   if(t1 != NULL && t2 != NULL) {
 					   if(type_equal(t1, t2)) {
 						   type = t1;
+						   ADDR -= 4;
+						   p->firstChild->addr_sp = ADDR;
+						   fprintf(out_fp, "\taddi $sp, $sp, -4\n");
+						   fprintf(out_fp, "\tlw $t0, %d($sp)\n", tempNode->firstChild->addr_sp - ADDR);
+						   fprintf(out_fp, "\tlw $t1, %d($sp)\n", temp2Node->firstChild->addr_sp - ADDR);
+						   fprintf(out_fp, "\tdiv $t0, $t0, $t1\n");
+						   fprintf(out_fp, "\tsw $t0, 0($sp)\n"); 
 						   return type;//类型匹配
 					   }
 					   else if(!type_equal(t1, t2)) {
@@ -914,7 +915,6 @@ Type doExp(TreeNode *p) {
 					}
 					TreeNode *argNode = tempNode->rightBrother->rightBrother;
 					argElement *args = doArgs(argNode);
-                                        //if (args == NULL) printf("doArgs returns null!\n");
 					if (compareArgs(func->argListHeader, args) == 0) {	//参数匹配有问题
 						printf("Error type 9 at line %d: function var list not matched %s\n", p->line, tempNode->value.idValue);
 						return func->type;
@@ -927,12 +927,16 @@ Type doExp(TreeNode *p) {
 						varElement *var = searchAll(tempNode->value.idValue);
 						if (var != NULL) {
 							printf("Error type 11 at line %d: normal variable %s uses '()'\n", p->line, tempNode->value.idValue);
-						} else
+							OUT = false;
+						} else {
 							printf("Error type 4 at line %d:undefined function %s\n", p->line, tempNode->value.idValue);
+							OUT = false;
+						}
 						return NULL;
 					}
 					else if (func->argListHeader != NULL) {	//函数定义中有参数而调用没有
 						printf("Error type 9 at line %d:function var list not matched %s\n", p->line, tempNode->value.idValue);
+						OUT = false;
 						return func->type;
 					}
 					break;
@@ -943,12 +947,18 @@ Type doExp(TreeNode *p) {
 					Type t1 = doExp(tempNode);
 					Type t2 = doExp(temp2Node);
 					if(tempNode != NULL && temp2Node != NULL) {
-						if(t1->kind != ARRAY)
+						if(t1->kind != ARRAY) {
 							printf("Error type 10 at line %d: normal variable uses '[]'\n", p->line);
-						else if(t2->u.basic != 0)
+							OUT = false;
+						}
+						else if(t2->u.basic != 0) {
 							printf("Error type 12 at line %d:int required\n", p->line);
+							OUT = false;
+						}
 						else {
 							type = doExp(tempNode)->u.array.elem;
+//							printf("tempNode->firstChild->addr_sp: %d\n", tempNode->firstChild->addr_sp);
+							tempNode->addr_sp = tempNode->firstChild->addr_sp - temp2Node->firstChild->value.intValue * 4;
 							return type;
 						}
 					}
@@ -997,7 +1007,6 @@ Type doExp(TreeNode *p) {
 			case 17:{Type type = (Type)malloc(sizeof(struct Type_));
 					type->kind = BASIC;
 					type->u.basic = 0;
-				
 					ADDR -= 4;
 					tempNode->addr_sp = ADDR;
 					fprintf(out_fp, "\taddi $sp, $sp, -4\n");
